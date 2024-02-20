@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="dMBrQE" name="ListenersAndBroadcasters_tutorial_FV" projectType="guiapp"
+              useAppConfig="0" addUsingNamespaceToJuceHeader="0" displaySplashScreen="1"
+              jucerFormatVersion="1">
+  <MAINGROUP id="Rs9XmO" name="ListenersAndBroadcasters_tutorial_FV">
+    <GROUP id="{491C9205-FB60-DE26-5428-B29603D21348}" name="Source">
+      <FILE id="GNzqXb" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+      <FILE id="B4k88L" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
+      <FILE id="oxc78I" name="MainComponent.cpp" compile="1" resource="0"
+            file="Source/MainComponent.cpp"/>
+    </GROUP>
+  </MAINGROUP>
+  <MODULES>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+  </MODULES>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
+  <EXPORTFORMATS>
+    <VS2022 targetFolder="Builds/VisualStudio2022">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="ListenersAndBroadcasters_tutorial_FV"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="ListenersAndBroadcasters_tutorial_FV"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="../../GitHub/Juce/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../GitHub/Juce/modules"/>
+        <MODULEPATH id="juce_events" path="../../GitHub/Juce/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../GitHub/Juce/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../GitHub/Juce/modules"/>
+      </MODULEPATHS>
+    </VS2022>
+  </EXPORTFORMATS>
+</JUCERPROJECT>

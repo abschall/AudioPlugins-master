@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# Heavy Folders
+Builds/
+JuceLibraryCode/
