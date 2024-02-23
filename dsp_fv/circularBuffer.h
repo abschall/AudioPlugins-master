@@ -1,6 +1,8 @@
 #pragma once
 #include <iostream>
 #include <memory>
+#include <vector>
+
 using std::vector;
 using namespace std;
 

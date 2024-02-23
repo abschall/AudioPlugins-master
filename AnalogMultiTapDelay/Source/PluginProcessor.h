@@ -10,15 +10,18 @@
 
 #include <JuceHeader.h>
 #include "../../dsp_fv/biquad.h"
-#include "../../dsp_fv/combFilterWithFB.h"
+#include "../../dsp_fv/circularBuffer.h"
+#include "MultiTapDelay.h"
+
 //==============================================================================
 
-class Delay101AudioProcessor  : public juce::AudioProcessor, private CircularBuffer<float>
+class AnalogMultiTapDelayAudioProcessor  : public juce::AudioProcessor,
+    private juce::Timer, public FilteredNoise 
 {
 public:
     //==============================================================================
-    Delay101AudioProcessor();
-    ~Delay101AudioProcessor() override;
+    AnalogMultiTapDelayAudioProcessor();
+    ~AnalogMultiTapDelayAudioProcessor() override;
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -55,14 +58,43 @@ public:
 
 private:
     //==============================================================================
-    CircularBuffer delayLine;
-    juce::AudioParameterFloat* wetDry;
-    juce::AudioParameterFloat* feedbackGain;
-    juce::AudioParameterFloat* delayTime; // in ms
-    CombFilterWithFB delay;
-    //unsigned int delaySamples;
-    double currentSampleRate;
-    float level = 0.0f;
+    void timerCallback() override
+    {
+        stopTimer();
+        delayBufferFilled = true;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Delay101AudioProcessor)
+    }
+    //==============================================================================
+    // necessary variables
+
+    double currentSampleRate;
+    juce::AudioProcessorValueTreeState parameters;
+    float maxDelayTime = 2000.0;
+    bool delayBufferFilled = false;
+    
+    // Overall members
+    std::atomic<float>* mix = nullptr;
+    std::atomic<float>* inputLevel = nullptr;
+    std::atomic<float>* delay = nullptr;
+    std::atomic<float>* width = nullptr;
+    std::atomic<float>* feedback = nullptr;
+
+    // Taps members
+    std::atomic < float>* timeRatio = nullptr;
+    vector< std::atomic<bool>*> tapSelector;
+    vector< std::atomic<float>*> tapLevels;
+    const unsigned int numberOfTaps = 4;
+
+    // Color members
+    std::atomic<float>* noiseLevel = nullptr;
+    std::atomic<float>* saturation = nullptr;
+
+    // Filter members
+    std::atomic<float>* lowPass = nullptr;
+    std::atomic<float>* highPass = nullptr;
+
+    // the delay algorithm
+    MultiTapDelay delayAlgorithm; // change with delay Algorithm
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AnalogMultiTapDelayAudioProcessor)
 };

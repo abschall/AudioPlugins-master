@@ -9,6 +9,27 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+void ClassicBiquadFilters_2AudioProcessorEditor::filterStyleSelection()
+{
+    juce::AudioProcessorParameterWithID* param = valueTreeState.getParameter("filtertype");
+    switch (filterTypeChoice.getSelectedId()) {
+    case 1:
+        param->setValueNotifyingHost(0.0);
+        break;
+    case 2:
+        param->setValueNotifyingHost(0.25);
+        break;
+    case 3:
+        param->setValueNotifyingHost(0.5);
+        break;
+    case 4:
+        param->setValueNotifyingHost(0.75);
+        break;
+    default:
+        param->setValueNotifyingHost(0.0);
+        break;
+    }
+}
 //==============================================================================
 ClassicBiquadFilters_2AudioProcessorEditor::ClassicBiquadFilters_2AudioProcessorEditor (ClassicBiquadFilters_2AudioProcessor& p, juce::AudioProcessorValueTreeState& vts)
     : AudioProcessorEditor (&p), audioProcessor (p), valueTreeState(vts)
@@ -72,23 +93,19 @@ ClassicBiquadFilters_2AudioProcessorEditor::ClassicBiquadFilters_2AudioProcessor
     dryWetLabel.attachToComponent(&dryWetSlider, false);
     dryWetLabel.setJustificationType(juce::Justification::centred);
 
-    // Create Buttons
-    addAndMakeVisible(LPF1textButton);
-    LPF1textButton.setSize(100, 20);
-    LPF1textButton.setButtonText("LPF1");
+    addAndMakeVisible(filterTypeChoice);
+    filterTypeChoice.addItem("LPF1", 1);
+    filterTypeChoice.addItem("LPF2", 2);
+    filterTypeChoice.addItem("HPF1", 3);
+    filterTypeChoice.addItem("HPF2", 4);
+    //filterTypeChoice.onChange = [this] { filterStyleSelection(); };// first method to update valueTreeParameter
+    //filterTypeChoice.setSelectedId(1);
+    // second method using an attachment
+    filterTypeChoiceAttachment.reset(new ComboBoxAttachment(valueTreeState, "filtertype", filterTypeChoice));
 
-    addAndMakeVisible(LPF2textButton);
-    LPF2textButton.setSize(100, 20);
-    LPF2textButton.setButtonText("LPF2");
 
-    addAndMakeVisible(HPF1textButton);
-    HPF1textButton.setSize(100, 20);
-    HPF1textButton.setButtonText("HPF1");
-
-    addAndMakeVisible(HPF2textButton);
-    HPF2textButton.setSize(100, 20);
-    HPF2textButton.setButtonText("HPF2");
 }
+
 
 ClassicBiquadFilters_2AudioProcessorEditor::~ClassicBiquadFilters_2AudioProcessorEditor()
 {
@@ -116,9 +133,5 @@ void ClassicBiquadFilters_2AudioProcessorEditor::resized()
     dBLabel.setBounds(0, heightTri, widthTri, 30);
     dBSlider.setBounds(widthTri, heightTri, 250 + dBSlider.getTextBoxWidth(), 30);
 
-
-    LPF1textButton.setBounds(3 * widthTri + 10, 10, 100, 20);
-    LPF2textButton.setBounds(3 * widthTri + 10, 10 + 1 * (25), 100, 20);
-    HPF1textButton.setBounds(3 * widthTri + 10, 10 + 2 * (25), 100, 20);
-    HPF2textButton.setBounds(3 * widthTri + 10, 10 + 3 * (25), 100, 20);
+    filterTypeChoice.setBounds(3 * widthTri + 10, 10, 100, heightTri/3);
 }

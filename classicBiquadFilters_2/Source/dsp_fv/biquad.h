@@ -102,6 +102,10 @@ public:
         }
     }
 
+    void setType(juce::String type)
+    {
+        form = type;
+    }
 
 private:
     // =============================================================================
@@ -118,10 +122,6 @@ private:
     float processedCoeff = 1.0;
     juce::String form;
 
-    void setType(juce::String type)
-    {
-        form = type;
-    }
 };
 
 // =============================================================================
@@ -133,7 +133,7 @@ private:
 /// ClassicFilters class, used to implement the following filters :
 /// LPF1, LPF2, HPF1, HPF2, more filters to come ...
 /// </summary>
-class ClassicFilters : public Biquad
+class ClassicFilters : private Biquad
 {
 public:
 

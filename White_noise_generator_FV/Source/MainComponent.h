@@ -58,7 +58,8 @@ public:
 private:
     //==============================================================================
     // Your private member variables go here...
-    juce::Random random;
+
+
 
 
     float level = 0.0f;

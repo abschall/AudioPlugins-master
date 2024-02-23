@@ -61,18 +61,28 @@ public:
     // State Information
     void getStateInformation(juce::MemoryBlock& destData) override;
     void setStateInformation(const void* data, int sizeInBytes) override;
-
+    //==============================================================================
+    // Helper functions
+    void ClassicBiquadFilters_2AudioProcessor::setFilterType(int filterNum);
 private:
     //==============================================================================
     float level = 0.0f;
     Biquad biquadFilter;
     float currentSampleRate;
 
+    //enum filterTypes {
+    //    LPF1 = 0,
+    //    LPF2 = 1,
+    //    HPF1 = 2,
+    //    HPF2 = 3
+    //};
+
     ClassicFilters filter;
     //juce::AudioParameterFloat* fc, * Q, * K;
     std::atomic<float>* fcParameter = nullptr;
     std::atomic<float>* QParameter = nullptr;
     std::atomic<float>* dryWetParameter = nullptr;
+    std::atomic<float>* filterTypeParameter = nullptr;
 
     juce::AudioProcessorValueTreeState parameters;
 

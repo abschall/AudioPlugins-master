@@ -9,6 +9,8 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+
+
 //==============================================================================
 ClassicBiquadFilters_2AudioProcessor::ClassicBiquadFilters_2AudioProcessor():AudioProcessor(BusesProperties() 
     .withInput("Input", juce::AudioChannelSet::stereo())
@@ -31,13 +33,41 @@ ClassicBiquadFilters_2AudioProcessor::ClassicBiquadFilters_2AudioProcessor():Aud
             "fc",
             "Cut-off Freq",
             juce::NormalisableRange<float>(0.001f, 1.0f),
-            0.1f) })
-
+            0.1f),
+        std::make_unique<juce::AudioParameterFloat>(
+            "filtertype",
+            "Filter Type",
+            juce::NormalisableRange<float>(0.0f, 0.75f),
+            0.0f)
+        //// not an elegant way to select a filter at all
+        //std::make_unique<juce::AudioParameterBool>(
+        //    "lpf1",
+        //    "LPF1",
+        //    true),
+        //std::make_unique<juce::AudioParameterBool>(
+        //    "lpf2",
+        //    "LPF2",
+        //    false),
+        //std::make_unique<juce::AudioParameterBool>(
+        //    "hpf1",
+        //    "HPF1",
+        //    false),
+        //std::make_unique<juce::AudioParameterBool>(
+        //    "hpf2",
+        //    "HPF2",
+        //    false),
+        }
+    )
 {   
     fcParameter = parameters.getRawParameterValue("fc");
     QParameter = parameters.getRawParameterValue("qfactor");
     dryWetParameter = parameters.getRawParameterValue("dryWet");
+    filterTypeParameter = parameters.getRawParameterValue("filtertype");
+
+    //filterTypeParameter = parameters.getParameter("filterChoice");
+    //filterTypeNum = (int)filterTypeParameter->getValue();
 }
+
 
 ClassicBiquadFilters_2AudioProcessor::~ClassicBiquadFilters_2AudioProcessor()
 {
@@ -49,17 +79,13 @@ void ClassicBiquadFilters_2AudioProcessor::prepareToPlay (double sampleRate, int
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
-
-    //auto fcCopy = fc->get() * 5000.0f;
-    //auto QCopy = Q->get() * 20.0f;
-    //auto KCopy = K->get();
-
     auto fcCopy = *fcParameter * 5000.0f;
     auto QCopy = *QParameter * 20.0f;
-    auto KCopy = *dryWetParameter * 1.0f;
+    auto KCopy = *dryWetParameter * 1.0f;    
+    auto filterTypeCopy = *filterTypeParameter * 1.0f;
 
     currentSampleRate = sampleRate;
-    filter.setFilterType("LPF2");
+    setFilterType((int) 4* filterTypeCopy);
     filter.setFilterGain(KCopy);
     filter.setCoefficients(fcCopy, QCopy, currentSampleRate);
 
@@ -85,7 +111,9 @@ void ClassicBiquadFilters_2AudioProcessor::processBlock(juce::AudioBuffer<float>
     auto fcCopy = *fcParameter * 5000.0f;
     auto QCopy = *QParameter * 20.0f;
     auto KCopy = *dryWetParameter * 1;
+    auto filterTypeCopy = *filterTypeParameter * 1.0f;
 
+    setFilterType((int) 4 * filterTypeCopy);
     filter.setFilterGain(KCopy);
     filter.setCoefficients(fcCopy, QCopy, currentSampleRate);
 
@@ -207,6 +235,27 @@ void ClassicBiquadFilters_2AudioProcessor::setStateInformation (const void* data
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+}
+//==============================================================================
+//Helper function
+void ClassicBiquadFilters_2AudioProcessor::setFilterType(int filterNum)
+{
+    switch (filterNum) {
+        case 0:
+            filter.setFilterType("LPF1");
+            break;
+        case 1:
+            filter.setFilterType("LPF2");
+            break;
+        case 2 :
+            filter.setFilterType("HPF1");
+            break;
+        case 3:
+            filter.setFilterType("HPF2");
+            break;
+        default :
+            filter.setFilterType("LPF1");
+    }
 }
 
 //==============================================================================

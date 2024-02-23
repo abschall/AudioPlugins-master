@@ -43,8 +43,11 @@ class ClassicBiquadFilters_2AudioProcessorEditor  : public juce::AudioProcessorE
 
 
 public:
+    void ClassicBiquadFilters_2AudioProcessorEditor::filterStyleSelection();
     typedef juce::AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
     typedef juce::AudioProcessorValueTreeState::ButtonAttachment ButtonAttachment;
+    typedef juce::AudioProcessorValueTreeState::ComboBoxAttachment ComboBoxAttachment;
+
     ClassicBiquadFilters_2AudioProcessorEditor (ClassicBiquadFilters_2AudioProcessor& p, juce::AudioProcessorValueTreeState& vts);
     ~ClassicBiquadFilters_2AudioProcessorEditor() override;
 
@@ -56,7 +59,7 @@ private:
 
     juce::AudioProcessorValueTreeState& valueTreeState;
     ClassicBiquadFilters_2AudioProcessor& audioProcessor;
-
+    
     // GUI elements
     DecibelSlider dBSlider;
     juce::Label dBLabel;
@@ -74,15 +77,8 @@ private:
     std::unique_ptr<SliderAttachment> dryWetAttachment;
     juce::Label dryWetLabel;
 
-    juce::TextButton LPF1textButton;
-    juce::TextButton HPF1textButton;
-    juce::TextButton LPF2textButton;
-    juce::TextButton HPF2textButton;
-
-    std::unique_ptr<ButtonAttachment> LPF1Attachment;
-    std::unique_ptr<ButtonAttachment> HPF1Attachment;
-    std::unique_ptr<ButtonAttachment> LPF2Attachment;
-    std::unique_ptr<ButtonAttachment> HPF2Attachment;
+    juce::ComboBox filterTypeChoice;
+    std::unique_ptr<ComboBoxAttachment> filterTypeChoiceAttachment;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ClassicBiquadFilters_2AudioProcessorEditor)
 };

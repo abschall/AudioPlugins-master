@@ -44,8 +44,6 @@ void Delay101AudioProcessor::prepareToPlay(double sampleRate, int samplesPerBloc
     auto wetDryCopy = wetDry->get();
     auto feedbackGainCopy = feedbackGain->get();
     
-
-    // delayLine. createBuffer(delaySamples);
     delay.setParameters(currentSampleRate, delayTimeMsecCopy, 1 - wetDryCopy, wetDryCopy, feedbackGainCopy);
     delay.createDelayBuffer(currentSampleRate, 2000.0);
    
@@ -90,11 +88,7 @@ void Delay101AudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
     auto wetDryCopy = wetDry->get();
     auto feedbackGainCopy = feedbackGain->get();
 
-
     delay.setParameters(currentSampleRate, delayTimeMsecCopy, 1 - wetDryCopy, wetDryCopy, feedbackGainCopy);
-    //delay.setDryWetLevels(1 - wetDryCopy, wetDryCopy);
-    //delay.setFeedbackGain(feedbackGainCopy);
-    //delay.setDelayTimeInMs(delayTimeMsecCopy);
 
     for (auto sample = 0;sample < buffer.getNumSamples(); ++sample)
     {

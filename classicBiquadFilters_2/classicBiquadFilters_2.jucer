@@ -2,16 +2,19 @@
 
 <JUCERPROJECT id="vdOwe5" name="classicBiquadFilters_2" projectType="audioplug"
               useAppConfig="0" addUsingNamespaceToJuceHeader="0" displaySplashScreen="1"
-              jucerFormatVersion="1">
+              jucerFormatVersion="1" pluginFormats="buildVST3" pluginVST3Category="Filter"
+              pluginCharacteristicsValue="pluginAAXDisableMultiMono,pluginIsSynth"
+              companyName="Abschall">
   <MAINGROUP id="tqJOLD" name="classicBiquadFilters_2">
     <GROUP id="{232445BD-B198-7CD3-4F3C-F198EAC40D1A}" name="Source">
       <FILE id="RH58WP" name="PluginProcessor.cpp" compile="1" resource="0"
-            file="Source/PluginProcessor.cpp"/>
+            file="Source/PluginProcessor.cpp" xcodeResource="0"/>
       <FILE id="aOMF0i" name="PluginProcessor.h" compile="0" resource="0"
-            file="Source/PluginProcessor.h"/>
+            file="Source/PluginProcessor.h" xcodeResource="0"/>
       <FILE id="f2Y6pi" name="PluginEditor.cpp" compile="1" resource="0"
-            file="Source/PluginEditor.cpp"/>
-      <FILE id="EPRliK" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+            file="Source/PluginEditor.cpp" xcodeResource="0"/>
+      <FILE id="EPRliK" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"
+            xcodeResource="0"/>
     </GROUP>
     <FILE id="LW7vL2" name="biquad.h" compile="0" resource="0" file="Source/dsp_fv/biquad.h"/>
   </MAINGROUP>
@@ -35,7 +38,8 @@
     <VS2022 targetFolder="Builds/VisualStudio2022">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="classicBiquadFilters_2"/>
-        <CONFIGURATION isDebug="0" name="Release" targetName="classicBiquadFilters_2"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="classicBiquadFilters_2"
+                       vst3BinaryLocation="C:\Program Files (x86)\VstPlugins"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_audio_basics" path="../../GitHub/Juce/modules"/>
