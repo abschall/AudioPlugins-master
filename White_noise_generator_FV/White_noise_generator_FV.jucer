@@ -11,6 +11,7 @@
             file="Source/MainComponent.cpp"/>
     </GROUP>
     <FILE id="Rpxce4" name="biquad.h" compile="0" resource="0" file="Source/dsp_fv/biquad.h"/>
+    <FILE id="Nt26mF" name="lfo.h" compile="0" resource="0" file="../dsp_fv/lfo.h"/>
   </MAINGROUP>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>

@@ -46,10 +46,11 @@ public:
     }
 
     // add fractional read Buffer method
+    unique_ptr<T[]> buffer; //declaring an array of type T
 private:
     // ========================================================================
     // Private members 
     unsigned int writeIndex, readIndex, bufferLength;
-    unique_ptr<T[]> buffer; //declaring an array of type T
+
     unsigned int wrapMask;
 };

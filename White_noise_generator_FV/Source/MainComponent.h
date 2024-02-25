@@ -5,6 +5,8 @@
 using std::vector;
 // #include "biquad.h"
 #include "dsp_fv/biquad.h"
+#include "../../dsp_fv/lfo.h"
+
 //==============================================================================
 
 class DecibelSlider : public juce::Slider
@@ -59,7 +61,7 @@ private:
     //==============================================================================
     // Your private member variables go here...
 
-
+    juce::Random random;
 
 
     float level = 0.0f;
@@ -68,7 +70,6 @@ private:
 
     ClassicFilters filter;
     float fc = 10.0f, Q = 1.0f, K = 1.0f;
-
     //==============================================================================
     // GUI elements
     DecibelSlider dBSlider;
@@ -87,6 +88,9 @@ private:
     juce::TextButton HPF1textButton;
     juce::TextButton LPF2textButton;
     juce::TextButton HPF2textButton;
+    LFO lfo;
+    OscillatorParameters osc;
+    LFOSignalOutput lfoSignalOutput;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

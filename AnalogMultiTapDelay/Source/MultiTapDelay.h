@@ -38,7 +38,7 @@ class MultiTapDelay : public CombFilterWithFB
 {
 public:
     void setParameters(double pCurrentSampleRate, double pDelayTimeMs, double pRatioBetweenTaps,
-        unsigned int pNumberOfTaps, float pDry, float pWet, float pFeedbackGain)
+        unsigned int pNumberOfTaps, float pDry, float pWet, float pFeedbackGain, float pStereoWidth)
     {
         currentSampleRate = pCurrentSampleRate;
         timeRatio = pRatioBetweenTaps;
@@ -46,6 +46,7 @@ public:
         setDelayTimeInMs(pDelayTimeMs);
         setDryWetLevels(pDry, pWet);
         setFeedbackGain(pFeedbackGain);
+        stereoWidth = pStereoWidth;
     }
 
     void createNoise(float pInitialLevel)
@@ -66,12 +67,14 @@ public:
          {
              if (tap == 0)
              {
-                 tapDelayTimesInSamples.push_back(delayTimeInSamples);
+                 tapDelayTimesInSamplesL.push_back(delayTimeInSamples);
+                 tapDelayTimesInSamplesR.push_back(delayTimeInSamples );
                  tapLevels.push_back(1.0f);
              }
              else
              {
-                 tapDelayTimesInSamples.push_back(tapDelayTimesInSamples[tap - 1] * timeRatio);
+                 tapDelayTimesInSamplesL.push_back(tapDelayTimesInSamplesL[tap - 1] * timeRatio);
+                 tapDelayTimesInSamplesR.push_back(tapDelayTimesInSamplesR[tap - 1] * timeRatio);
                  tapLevels.push_back(0.0f);
              }
          }
@@ -83,10 +86,15 @@ public:
         {
             if (tap == 0)
             {
-                tapDelayTimesInSamples[tap] = delayTimeInSamples;
+                tapDelayTimesInSamplesL[tap] = delayTimeInSamples;
+                tapDelayTimesInSamplesR[tap] = delayTimeInSamples;
             }
             else
-                tapDelayTimesInSamples[tap] = tapDelayTimesInSamples[tap - 1] * timeRatio;
+            {
+                tapDelayTimesInSamplesL[tap] = tapDelayTimesInSamplesL[tap - 1] * timeRatio;
+                tapDelayTimesInSamplesR[tap] = tapDelayTimesInSamplesR[tap - 1] * timeRatio;
+            }
+
         }
     }
 
@@ -97,6 +105,7 @@ public:
             tapLevels[tap] = pTapLevels[tap];
         }
     }
+
     //===============================================================
     // Methods to control the delays color (Noise and saturation)
     void setNoiseLevel(float pNoiseLevel)
@@ -108,51 +117,75 @@ public:
     // Methods to set the low pass and highpass filter 
     void setFiltersParameters(float lowpassFrequency, float highpassFrequency)
     {
-        lopFilter.setFilterType("LPF1");
-        hipFilter.setFilterType("HPF1");
-        lopFilter.setCoefficients(lowpassFrequency , 1, currentSampleRate);
-        hipFilter.setCoefficients(highpassFrequency, 1, currentSampleRate);
+        // setting Left Side filters 
+        lopFilterL.setFilterType("LPF1");
+        hipFilterL.setFilterType("HPF1");
+        lopFilterL.setCoefficients(lowpassFrequency , 1, currentSampleRate);
+        hipFilterL.setCoefficients(highpassFrequency, 1, currentSampleRate);
+
+        // setting Right Side filters 
+        lopFilterR.setFilterType("LPF1");
+        hipFilterR.setFilterType("HPF1");
+        lopFilterR.setCoefficients(lowpassFrequency, 1, currentSampleRate);
+        hipFilterR.setCoefficients(highpassFrequency, 1, currentSampleRate);
     }
 
     void updateFiltersParameters(float lowpassFrequency, float highpassFrequency)
     {
-        lopFilter.setCoefficients(lowpassFrequency, 1, currentSampleRate);
-        hipFilter.setCoefficients(highpassFrequency, 1, currentSampleRate);
+        //update Left Side Filter
+        lopFilterL.setCoefficients(lowpassFrequency,  1, currentSampleRate);
+        hipFilterL.setCoefficients(highpassFrequency, 1, currentSampleRate);
+
+        //update Right Side Filter
+        lopFilterR.setCoefficients(lowpassFrequency,  1, currentSampleRate);
+        hipFilterR.setCoefficients(highpassFrequency, 1, currentSampleRate);
     }
 
-    float processAudioSample(float inputXn) override
-    {
-        float ynD = 0.0;
-        float sum = 0.0;
 
+    vector<float> processAudioSample(float inputXnL, float inputXnR) override
+    {
+        auto ynDL = 0.0f, ynDR = 0.0f, sum = 0.0f;
+        auto noise = noiseLevel * noiseSource.sound();
         for (auto tap = 0; tap < numberOfTaps; ++tap)
         {
-            ynD += tapLevels[tap] * delayBuffer.readBuffer(tapDelayTimesInSamples[tap]);
+            // reading taps
+            ynDL += tapLevels[tap] * delayBufferL.readBuffer(tapDelayTimesInSamplesL[tap]);
+            ynDR += tapLevels[tap] * delayBufferR.readBuffer(tapDelayTimesInSamplesR[tap]);
+
             sum += tapLevels[tap];
         }
 
         if (sum < 1.0f)
             sum = 1.0f;
 
-        ynD = ynD / sum; // normalise level of taps to 1, to avoid excessive feedback
-        ynD += noiseLevel * noiseSource.sound(); // adding noise to the FB path signal
-        auto ynDFiltered = hipFilter.processAudioSample(lopFilter.processAudioSample(ynD)); // filtering the signal 
+        ynDL = ynDL / sum; // normalise level of taps to 1, to avoid excessive feedback
+        ynDR = ynDR / sum;
+        ynDL = ynDL + noise;
+        ynDR = ynDR + noise;
 
-        auto ynFullWet = inputXn + feedbackGain *ynDFiltered ;
-        delayBuffer.writeBuffer(ynFullWet);
-        auto yn = dry * inputXn + wet * ynDFiltered;
 
+        auto ynFullWetL = hipFilterL.processAudioSample(lopFilterL.processAudioSample(inputXnL + feedbackGain * ynDL));
+        auto ynFullWetR = hipFilterL.processAudioSample(lopFilterR.processAudioSample(inputXnR + feedbackGain * ynDR));
+        delayBufferL.writeBuffer(ynFullWetR);
+        delayBufferR.writeBuffer(ynFullWetL);
+        vector<float> yn = { stereoWidth * (dry * inputXnL + wet * ynDL) + (1 - stereoWidth) * (dry * inputXnR + wet * ynDR),
+                             stereoWidth * (dry * inputXnR + wet * ynDR) + (1 - stereoWidth) * (dry * inputXnL + wet * ynDL) };
         return yn;
     }
 
 private:
     FilteredNoise noiseSource;
+    float stereoWidth;
     float noiseLevel;
 	double timeRatio;
     vector<float> tapLevels;
-    vector<float> tapDelayTimesInSamples;
+    vector<float> tapDelayTimesInSamplesL;
+    vector<float> tapDelayTimesInSamplesR;
     unsigned int numberOfTaps = 4;
-    ClassicFilters lopFilter;
-    ClassicFilters hipFilter;
+
+    // Each channel requires its own signal processing  chain, one filter / channel, one saturation / channel, etc..
+    // except the noise which is jsut an added signal, input signal does not pass through it processing block
+    ClassicFilters lopFilterL, lopFilterR;
+    ClassicFilters hipFilterL, hipFilterR;
 };
 

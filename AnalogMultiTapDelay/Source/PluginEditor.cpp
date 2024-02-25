@@ -9,14 +9,15 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+
 //==============================================================================
 AnalogMultiTapDelayAudioProcessorEditor::AnalogMultiTapDelayAudioProcessorEditor (AnalogMultiTapDelayAudioProcessor& p, juce::AudioProcessorValueTreeState& vts)
     : AudioProcessorEditor (&p), audioProcessor (p), valueTreeState(vts)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (600, 500);
-
+   setSize (800, 360);
+   setLookAndFeel(new abschallLookAndFeel_Sliders(juce::Colours::limegreen,juce::Colours::green));
    //==============================================================================
    addAndMakeVisible( delayPot);
    addAndMakeVisible( timeRatioPot);
@@ -26,27 +27,36 @@ AnalogMultiTapDelayAudioProcessorEditor::AnalogMultiTapDelayAudioProcessorEditor
    addAndMakeVisible( tapLevel_4Pot);
    addAndMakeVisible( mixPot);
    addAndMakeVisible( widthPot);
-   addAndMakeVisible( inputLevelPot);
+   //addAndMakeVisible( inputLevelPot);
    addAndMakeVisible( feedbackPot);
    addAndMakeVisible( noiseLevelPot);
-   addAndMakeVisible( saturationPot);
+   //addAndMakeVisible( saturationPot);
    addAndMakeVisible( lowPassPot);
    addAndMakeVisible( highPassPot);
+   
+   //timeRatioPot.setLookAndFeel(&lookAndFeelTapDelay);
+   // method for automatic scripting of delay functions 
+   //for (auto i = 0; i < testPots.size(); ++i)
+   //{
+   //    addAndMakeVisible(testPots[i]);
+   //     testPots[i]->setLookAndFeel(&lookAndFeelTapDelay);
+   //}
 
-   delayPot.createPot(10, 10, 2000, "ms", heightPot);
+   delayPot.createPot(10, 10, 10000, " ms", heightPot);
+   delayPot.setSkewFactorFromMidPoint(2000);
    timeRatioPot.createPot(1.62, 1, 2, " ", heightPot);
-   tapLevel_1Pot.createPot(0, 0, 1, " ", mediumPotsHeight);
-   tapLevel_2Pot.createPot(0, 0, 1, " ", mediumPotsHeight);
-   tapLevel_3Pot.createPot(0, 0, 1, " ", mediumPotsHeight);
-   tapLevel_4Pot.createPot(0, 0, 1, " ", mediumPotsHeight);
-   mixPot.createPot(50, 0, 100, "%", heightPot);
-   widthPot.createPot(0, 0, 100, "%", heightPot);
-   inputLevelPot.createPot(100, 0, 100, "%", heightPot);
-   feedbackPot.createPot(100, 0, 100, "%", heightPot);
+   tapLevel_1Pot.createPot(0, 0, 1, " %", mediumPotsHeight);
+   tapLevel_2Pot.createPot(0, 0, 1, " %", mediumPotsHeight);
+   tapLevel_3Pot.createPot(0, 0, 1, " %", mediumPotsHeight);
+   tapLevel_4Pot.createPot(0, 0, 1, " %", mediumPotsHeight);
+   mixPot.createPot(50, 0, 100, " %", heightPot);
+   widthPot.createPot(0, 0, 100, "",smallPotsHeight);
+   //inputLevelPot.createPot(100, 0, 100, "%", heightPot);
+   feedbackPot.createPot(100, 0, 100, " %", heightPot);
    noiseLevelPot.createPot(0, 0, 1, "", smallPotsHeight);
-   saturationPot.createPot(0, 0, 1, "", smallPotsHeight);
-   lowPassPot.createPot(15000, 20, 15000, "Hz", smallPotsHeight);
-   highPassPot.createPot(20, 20, 15000, "Hz", smallPotsHeight);
+   //saturationPot.createPot(0, 0, 1, "", smallPotsHeight);
+   lowPassPot.createPot(15000, 20, 15000, " Hz", smallPotsHeight);
+   highPassPot.createPot(20, 20, 15000, " Hz", smallPotsHeight);
 
    delayAttachement.reset(new SliderAttachment(valueTreeState, "delay", delayPot));
    timeRatioAttachement.reset(new SliderAttachment(valueTreeState, "timeRatio", timeRatioPot));
@@ -72,10 +82,10 @@ AnalogMultiTapDelayAudioProcessorEditor::AnalogMultiTapDelayAudioProcessorEditor
   addAndMakeVisible( tapLevel_4Label);
   addAndMakeVisible( mixLabel);
   addAndMakeVisible( widthLabel);
-  addAndMakeVisible( inputLevelLabel);
+ // addAndMakeVisible( inputLevelLabel);
   addAndMakeVisible( feedbackLabel);
   addAndMakeVisible( noiseLevelLabel);
-  addAndMakeVisible( saturationLabel);
+  //addAndMakeVisible( saturationLabel);
   addAndMakeVisible( lowPassLabel);
   addAndMakeVisible( highPassLabel);
 
@@ -112,21 +122,6 @@ AnalogMultiTapDelayAudioProcessorEditor::AnalogMultiTapDelayAudioProcessorEditor
   highPassLabel.    setText("High-Pass", juce::dontSendNotification);
 
   //==============================================================================
-  delayLabel.       setJustificationType(juce::Justification::centred);
-  timeRatioLabel.   setJustificationType(juce::Justification::centred);
-  tapLevel_1Label.  setJustificationType(juce::Justification::centred);
-  tapLevel_2Label.  setJustificationType(juce::Justification::centred);
-  tapLevel_3Label.  setJustificationType(juce::Justification::centred);
-  tapLevel_4Label.  setJustificationType(juce::Justification::centred);
-  mixLabel.         setJustificationType(juce::Justification::centred);
-  widthLabel.       setJustificationType(juce::Justification::centred);
-  inputLevelLabel.  setJustificationType(juce::Justification::centred);
-  feedbackLabel.    setJustificationType(juce::Justification::centred);
-  noiseLevelLabel.  setJustificationType(juce::Justification::centred);
-  saturationLabel.  setJustificationType(juce::Justification::centred);
-  lowPassLabel.     setJustificationType(juce::Justification::centred);
-  highPassLabel.    setJustificationType(juce::Justification::centred);
-  
 }
 
 AnalogMultiTapDelayAudioProcessorEditor::~AnalogMultiTapDelayAudioProcessorEditor()
@@ -137,7 +132,7 @@ AnalogMultiTapDelayAudioProcessorEditor::~AnalogMultiTapDelayAudioProcessorEdito
 void AnalogMultiTapDelayAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+    g.fillAll (juce::Colours::green.darker(5.0));
 
     g.setColour (juce::Colours::white);
 }
@@ -145,36 +140,27 @@ void AnalogMultiTapDelayAudioProcessorEditor::paint (juce::Graphics& g)
 void AnalogMultiTapDelayAudioProcessorEditor::resized()
 {
 
-    //delayLabel.setBounds(0, 0, wLabel, heightLabel);
     delayPot.setBounds(0, heightLabel, wPot, heightPot);
 
-    //timeRatioLabel.setBounds(0, heightBox, wLabel, heightLabel);
     timeRatioPot.setBounds(0, heightBox + heightLabel, wPot, heightPot);
 
-    tapLevel_1Pot.setBounds(widthBox,           mediumPotsLabelHeight+heightLabel, mediumPotsWidth, mediumPotsHeight);
-    tapLevel_2Pot.setBounds(widthBox,           2* mediumPotsLabelHeight + mediumPotsHeight + heightLabel, mediumPotsWidth, mediumPotsHeight);
-    tapLevel_3Pot.setBounds(2 * widthBox + 20,  mediumPotsLabelHeight + heightLabel, mediumPotsWidth , mediumPotsHeight);
-    tapLevel_4Pot.setBounds(2 * widthBox + 20,  2 * mediumPotsLabelHeight + mediumPotsHeight + heightLabel, mediumPotsWidth, mediumPotsHeight);
+    tapLevel_1Pot.setBounds(widthBox,           mediumPotsLabelHeight, mediumPotsWidth, mediumPotsHeight);
+    tapLevel_2Pot.setBounds(widthBox,           2* mediumPotsLabelHeight + mediumPotsHeight , mediumPotsWidth, mediumPotsHeight);
+    tapLevel_3Pot.setBounds(2 * widthBox + 20,  mediumPotsLabelHeight, mediumPotsWidth , mediumPotsHeight);
+    tapLevel_4Pot.setBounds(2 * widthBox + 20,  2 * mediumPotsLabelHeight + mediumPotsHeight , mediumPotsWidth, mediumPotsHeight);
 
-    //mixLabel.setBounds(3 * widthBox , 0, wLabel, heightLabel);
     mixPot.setBounds(3 * widthBox, heightLabel, wPot, heightPot);
 
-   // widthLabel.setBounds(3 * widthBox , heightBox, wLabel, heightLabel);
-    widthPot.setBounds(3 * widthBox , heightBox + heightLabel, wPot, heightPot);
+    feedbackPot.setBounds(3 * widthBox , heightBox + heightLabel, wPot, heightPot);
 
-    //inputLevelLabel.setBounds(0, 2*heightBox, wLabel, heightLabel);
-    inputLevelPot.setBounds(0, 2 * heightBox + heightLabel, wPot, heightPot);
 
-  //  feedbackLabel.setBounds(widthBox, 2 * heightBox, wLabel, heightLabel);
-    feedbackPot.setBounds(widthBox, 2 * heightBox + heightLabel, wPot, heightPot);
+    //inputLevelPot.setBounds(1 * widthBox, 2 * heightBox , wPot, heightPot);
 
-   // noiseLevelLabel.setBounds(2 * widthBox, 2 * heightBox, smallPotsWidth, smallPotsLabelHeight);
-    noiseLevelPot.setBounds(2 * widthBox, 2 * heightBox+smallPotsLabelHeight,smallPotsWidth,smallPotsHeight);
-    //saturationLabel.setBounds(2 * widthBox,  2 * heightBox + smallPotsHeight + smallPotsLabelHeight, smallPotsWidth, smallPotsLabelHeight);
-    saturationPot.setBounds(2 * widthBox, 2 * heightBox + smallPotsHeight + 2 * smallPotsLabelHeight, smallPotsWidth, smallPotsHeight);
-    
-    //lowPassLabel.setBounds(2 * widthBox + smallPotsWidth, 2 * heightBox, smallPotsWidth, smallPotsLabelHeight);
-    lowPassPot.setBounds(2 * widthBox + smallPotsWidth, 2 * heightBox + smallPotsLabelHeight, smallPotsWidth, smallPotsHeight);;
-    //highPassLabel.  setBounds(2 * widthBox + smallPotsWidth, 2 * heightBox + smallPotsHeight + smallPotsLabelHeight, smallPotsWidth, smallPotsLabelHeight);
-    highPassPot.    setBounds(2 * widthBox + smallPotsWidth, 2 * heightBox + smallPotsHeight + 2 * smallPotsLabelHeight, smallPotsWidth, smallPotsHeight);;
+   // feedbackPot.setBounds(2 * widthBox, 2 * heightBox , wPot, heightPot);
+
+    noiseLevelPot.setBounds(4 * widthBox, heightLabel,smallPotsWidth,smallPotsHeight);
+    widthPot.setBounds(4 * widthBox, heightBox , smallPotsWidth, smallPotsHeight);
+
+    lowPassPot.setBounds(4* widthBox + smallPotsWidth, heightLabel, smallPotsWidth, smallPotsHeight);;
+    highPassPot.    setBounds(4 * widthBox + smallPotsWidth, heightBox, smallPotsWidth, smallPotsHeight);;
 }

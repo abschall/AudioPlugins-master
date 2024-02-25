@@ -6,7 +6,7 @@
 /// Public members are : dry, wet (mix) and feedback ((gain)ratio of output signal added to input)
 ///  in the feedback path 
 /// </summary>
-class CombFilterWithFB : private CircularBuffer<float>
+class CombFilterWithFB : public CircularBuffer<float>
 {
 public:
     /// <summary>
@@ -26,6 +26,7 @@ public:
         setDryWetLevels(pDry, pWet);
         setFeedbackGain(pFeedbackGain);
     }
+
     /// <summary>
     /// Delay time in the circular buffer is set in samples. 
     /// This method sets the delay time in number of samples directly
@@ -34,7 +35,9 @@ public:
     virtual void setDelayTimeInSamples(unsigned int pDelayTimeInSamples)
     {
         delayTimeInSamples = pDelayTimeInSamples;
+
     }
+
     /// <summary>
     /// Delay time in the circular buffer is set in samples. This function converts the delay time given in ms, to
     /// number of samples using the sample rate.
@@ -44,19 +47,32 @@ public:
     {
         delayTimeInSamples = pDelayTimeInMs * samplePerMsec;
     }
+
     /// <summary>
     /// process the audio sample, outputs the sum of input (dry) signal and processed (wet) signal
     /// </summary>
     /// <param name="inputXn"></param>
     /// <returns></returns>
-    virtual float processAudioSample(float inputXn)
+    //virtual vector<float> processAudioSample(float inputXnL,float inputXnR)
+    //{
+    //    auto ynD = delayBufferL.readBuffer(delayTimeInSamples);
+    //    auto ynFullWet = inputXnL + feedbackGain * ynD;
+    //    delayBufferL.writeBuffer(ynFullWet);
+    //    vector<float> yn = { dry * inputXnL + wet * ynD };
+    //    return yn;
+    //}
+    virtual vector<float> processAudioSample(float inputXnL, float inputXnR)
     {
-        auto ynD = delayBuffer.readBuffer(delayTimeInSamples);
-        auto ynFullWet = inputXn + feedbackGain * ynD;
-        delayBuffer.writeBuffer(ynFullWet);
-        auto yn = dry * inputXn + wet * ynD;
+        auto ynDL = delayBufferL.readBuffer(delayTimeInSamples);
+        auto ynDR = delayBufferR.readBuffer(delayTimeInSamples);
+        auto ynFullWetL = inputXnL + feedbackGain * ynDL;
+        auto ynFullWetR = inputXnR + feedbackGain * ynDR;
+        delayBufferL.writeBuffer(ynFullWetR);
+        delayBufferR.writeBuffer(ynFullWetL);
+        vector<float> yn = { dry * inputXnL + wet * ynDL,dry * inputXnR + wet * ynDR };
         return yn;
     }
+
     /// <summary>
     /// intantiates a delay buffer. the length is calculated from the given 
     /// time in ms and converted to number of samples
@@ -69,9 +85,11 @@ public:
         currentSampleRate = pSampleRate;
         samplePerMsec = currentSampleRate / 1000.0;
         bufferLength = (unsigned int)(bufferLengthMsec * samplePerMsec) + 1;
-        delayBuffer.createBuffer(bufferLength);
+        delayBufferL.createBuffer(bufferLength);
+        delayBufferR.createBuffer(bufferLength);
 
     }
+
     /// <summary>
     /// set dry and wet parameters( usually both are correlated) : dry = 1 - wet
     /// </summary>
@@ -95,12 +113,15 @@ public:
     float dry;
     float wet;
     float feedbackGain;
-
+    float pingPongRatio = 2.0;
 protected:
     double bufferLengthMsec;
     unsigned int bufferLength; // in samples
     unsigned int delayTimeInSamples;
-    CircularBuffer delayBuffer;
+    //unsigned int delayTimeInSamples;
+
+    CircularBuffer delayBufferR;
+    CircularBuffer delayBufferL;
     double currentSampleRate;
     double samplePerMsec;
 private:

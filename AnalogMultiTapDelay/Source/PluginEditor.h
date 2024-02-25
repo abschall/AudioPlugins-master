@@ -10,28 +10,30 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include "abschallLookAndFeel_Sliders.h"
+
 
 //==============================================================================
 /**
 */
-class rotaryPot : public juce::Slider
-{
-public:
-    rotaryPot() {
-        setSliderStyle(rotaryPot ::Rotary);
-        setTextBoxStyle(rotaryPot ::TextBoxBelow, false, 50, getTextBoxHeight() - 2);
-    }
-
-    void createPot(double pInitialValue, double pMinVal, double pMaxVal, juce::String pValueSuffix, int size)
-    {
-        setValue(pInitialValue);
-        setRange(pMinVal, pMaxVal);
-        setTextValueSuffix(pValueSuffix);
-        setSize(size, size);
-    }
-private:
-
-};
+//class rotaryPot : public juce::Slider
+//{
+//public:
+//    rotaryPot() {
+//        setSliderStyle(rotaryPot ::Rotary);
+//        setTextBoxStyle(rotaryPot ::TextBoxBelow, false, 50, getTextBoxHeight() - 2);
+//    }
+//
+//    void createPot(double pInitialValue, double pMinVal, double pMaxVal, juce::String pValueSuffix, int size)
+//    {
+//        setValue(pInitialValue);
+//        setRange(pMinVal, pMaxVal);
+//        setTextValueSuffix(pValueSuffix);
+//        setSize(size, size);
+//    }
+//private:
+//
+//};
 class AnalogMultiTapDelayAudioProcessorEditor  : public juce::AudioProcessorEditor
 {
 public:
@@ -49,6 +51,7 @@ private:
     juce::AudioProcessorValueTreeState& valueTreeState;
 
     // GUI elements
+
     rotaryPot  delayPot;
     rotaryPot  timeRatioPot;
     rotaryPot  tapLevel_1Pot;
@@ -63,6 +66,8 @@ private:
     rotaryPot  saturationPot;
     rotaryPot  lowPassPot;
     rotaryPot  highPassPot;
+
+   //vector<rotaryPot*> testPots = {&delayPot,&timeRatioPot};
 
     std::unique_ptr<SliderAttachment> delayAttachement;
     std::unique_ptr<SliderAttachment> timeRatioAttachement;
@@ -96,11 +101,12 @@ private:
 
     // Sizes
     int wPot = 150, heightPot = 120;
-    int wLabel = 150, heightLabel = 30;
+    int wLabel = 150, heightLabel = 50;
     int widthBox = wPot;
     int heightBox = heightPot + heightLabel;
-    int mediumPotsWidth = 120, mediumPotsHeight = 100, mediumPotsLabelHeight = 20;
-    int smallPotsWidth = 100, smallPotsHeight = 75, smallPotsLabelHeight = 20;
+    int mediumPotsWidth = 120, mediumPotsHeight = 100, mediumPotsLabelHeight = 50;
+    int smallPotsWidth = 100, smallPotsHeight = 75, smallPotsLabelHeight = 40;
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AnalogMultiTapDelayAudioProcessorEditor)
 };

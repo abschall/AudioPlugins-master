@@ -6,7 +6,7 @@ MainComponent::MainComponent()
     // Make sure you set the size of the component after
     // you add any child components.
     setSize(480,150);
-    setAudioChannels(0, 2); // setting two output channels and 0 inout channels 
+    setAudioChannels(0, 1); // setting two output channels and 0 inout channels 
 
     // create Sliders
     addAndMakeVisible(dBSlider);
@@ -88,6 +88,8 @@ MainComponent::MainComponent()
     HPF2textButton.setSize(100, 20);
     HPF2textButton.setButtonText("HPF2");
     HPF2textButton.addListener(this);
+
+
 }
 
 MainComponent::~MainComponent()
@@ -104,6 +106,12 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
     filter.setFilterType("LPF1");
     filter.setFilterGain(1.0f);
 
+    osc.oscillatorFrequency_Hz = 1;
+    osc.waveform = generatorWaveform::kTriangle;
+
+    lfo.setParameters(osc);
+    lfo.reset(sampleRate);
+
 }
 
 void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill)
@@ -114,13 +122,16 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
 
     auto level_scale = level * 2;
 
+    
     for (auto channel = 0; channel != bufferToFill.buffer->getNumChannels(); ++channel)
     {
+
         auto* buffer = bufferToFill.buffer->getWritePointer(channel, bufferToFill.startSample);
 
         for (auto sample = bufferToFill.startSample; sample < bufferToFill.numSamples; ++sample)
         {
-            buffer[sample] = filter.processAudioSample(level_scale * random.nextFloat() - level);   
+            lfoSignalOutput = lfo.renderAudioOuput();
+            buffer[sample] = filter.processAudioSample(lfoSignalOutput.normalOutput * level_scale*level_scale * random.nextFloat() - level);
         }
     }
 
@@ -132,7 +143,7 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
 
 void MainComponent::releaseResources()
 {
-    juce::Logger::getCurrentLogger()->writeToLog("releasing Audio ressources ");
+    juce::Logger::getCurrentLogger()->writeToLog("Releasing Audio ressources ");
 
     LPF1textButton.removeListener(this);
     LPF2textButton.removeListener(this);

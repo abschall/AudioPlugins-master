@@ -87,13 +87,15 @@ void Delay101AudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
     auto delayTimeMsecCopy = delayTime->get();
     auto wetDryCopy = wetDry->get();
     auto feedbackGainCopy = feedbackGain->get();
-
+    vector<float> yn = { 0.0,0.0 };
     delay.setParameters(currentSampleRate, delayTimeMsecCopy, 1 - wetDryCopy, wetDryCopy, feedbackGainCopy);
 
     for (auto sample = 0;sample < buffer.getNumSamples(); ++sample)
     {
-        for (auto i = 0; i < mainInputOutput.getNumChannels(); ++i)
-            *mainInputOutput.getWritePointer(i, sample) = delay.processAudioSample(*mainInputOutput.getReadPointer(i, sample));
+        //for (auto i = 0; i < mainInputOutput.getNumChannels(); ++i)
+        yn = delay.processAudioSample(0, *mainInputOutput.getReadPointer(1, sample));
+        *mainInputOutput.getWritePointer(0, sample) = yn[0];
+        *mainInputOutput.getWritePointer(1, sample) = yn[1];
     }
 }
 

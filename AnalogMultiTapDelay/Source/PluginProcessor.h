@@ -69,7 +69,7 @@ private:
 
     double currentSampleRate;
     juce::AudioProcessorValueTreeState parameters;
-    float maxDelayTime = 2000.0;
+    float maxDelayTime = 5001.0;
     bool delayBufferFilled = false;
     
     // Overall members

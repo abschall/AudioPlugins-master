@@ -44,72 +44,34 @@
 
 
 #pragma once
-class abschallLookAndFeel_Sliders : public juce::LookAndFeel_V4
+#include "abschallLookAndFeel_Sliders.h"
 
-{
-public:
-    abschallLookAndFeel_Sliders()
-    {
-
-    }
-    void drawRotarySlider(juce::Graphics& g,
-        int x,
-        int y,
-        int width,
-        int height,
-        float sliderPos,
-        const float rotaryStartAngle, const float rotaryEndAngle, juce::Slider&) override
-    {
-        auto radius = (float)juce::jmin(width / 2, height / 2) - 4.0f;
-        auto centreX = (float)x + (float)width * 0.5f;
-        auto centreY = (float)y + (float)height * 0.5f;
-        auto rx = centreX - radius;
-        auto ry = centreY - radius;
-        auto rw = radius * 2.0f;
-        auto angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
-       
-        g.setColour(juce::Colours::white);
-        g.drawEllipse(rx, ry, rw, rw,.5f) ;
-
-        juce::Colour colour = juce::Colours::white;
-        juce::ColourGradient cg = juce::ColourGradient::horizontal(colour, 0, colour.darker(5.0), width);
-
-        g.setGradientFill(cg);
-        g.fillEllipse(rx, ry, rw, rw);
-
-        juce::Path p;
-        //auto pointerLength = radius * 0.4f;
-        //auto pointerWidth = 4.0f;
-        //p.addRectangle(-pointerWidth / 2, -radius, pointerWidth, pointerLength);
-        auto pointerRadius = radius * 0.3f;
-        p.addEllipse(-pointerRadius / 2, -radius + pointerRadius/2, pointerRadius, pointerRadius);
-        p.applyTransform(juce::AffineTransform::rotation(angle).translated(centreX, centreY));
-        
-        juce::Colour pointerGreen = juce::Colours::forestgreen;
-        juce::ColourGradient pointerGradient = juce::ColourGradient::horizontal(colour, 0 , colour.darker(10.0f), width);
-        g.setGradientFill(pointerGradient);
-        g.setColour(pointerGreen);
-        g.fillPath(p);
-    }
-};
 //==============================================================================
 class MainContentComponent   : public juce::Component
 {
 public:
     MainContentComponent()
     {
-        getLookAndFeel().setColour (juce::Slider::thumbColourId, juce::Colours::red);
-        newLook.setColour(juce::Slider::thumbColourId, juce::Colours::green);
 
-        dial2.setLookAndFeel(&newLook);
+        setLookAndFeel(new abschallLookAndFeel_Sliders(juce::Colours::white));
 
-        dial1.setSliderStyle (juce::Slider::Rotary);
-        dial1.setTextBoxStyle (juce::Slider::NoTextBox, false, 0, 0);
+        //dial1.setSliderStyle (juce::Slider::Rotary);
+        //dial1.setTextBoxStyle (juce::Slider::NoTextBox, false, 0, 0);
         addAndMakeVisible (dial1);
+        addAndMakeVisible(dial2);
+        dial1.setValue(0.0f);
+        dial1.setRange(10, 15000);
+        dial1.setSuffix("Hz");
+        
 
-        dial2.setSliderStyle (juce::Slider::Rotary);
-        dial2.setTextBoxStyle (juce::Slider::NoTextBox, false, 0, 0);
-        addAndMakeVisible (dial2);
+        dial2.setValue(0.0f);
+        dial2.setRange(-0.5f, 0.5f);
+        dial2.setSuffix("%");
+
+        dial2Label.attachToComponent(&dial2, false);
+        addAndMakeVisible(dial2Label);
+        dial1Label.attachToComponent(&dial1, false);
+        addAndMakeVisible(dial1Label);
 
         button1.setButtonText ("Button 1");
         addAndMakeVisible (button1);
@@ -117,7 +79,13 @@ public:
         button2.setButtonText ("Button 2");
         addAndMakeVisible (button2);
 
-        setSize (300, 200);
+        addAndMakeVisible(dial1Label);
+        dial1Label.setText("FREQ",juce::dontSendNotification);
+
+        addAndMakeVisible(dial2Label);
+        dial2Label.setText("MIX", juce::dontSendNotification);
+        
+        setSize (300, 300);
     }
 
     void paint (juce::Graphics& g) override
@@ -127,11 +95,13 @@ public:
 
     void resized() override
     {
-        auto border = 4;
+        auto border = 5;
 
         auto area = getLocalBounds();
 
         auto dialArea = area.removeFromTop (area.getHeight() / 2);
+        dialArea = dialArea.removeFromBottom(dialArea.getHeight() - 30);
+
         dial1.setBounds (dialArea.removeFromLeft (dialArea.getWidth() / 2).reduced (border));
         dial2.setBounds (dialArea.reduced (border));
 
@@ -142,11 +112,13 @@ public:
     }
 
 private:
-    juce::Slider dial1;
-    juce::Slider dial2;
+
+    juce::Label dial1Label;
+    juce::Label dial2Label;
     juce::TextButton button1;
     juce::TextButton button2;
-    abschallLookAndFeel_Sliders newLook;
+    rotaryPot dial1, dial2;
+    //abschallLookAndFeel_Sliders newLook;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };

@@ -5,11 +5,23 @@
               projectType="guiapp" useAppConfig="0" addUsingNamespaceToJuceHeader="1"
               id="lrsq8n" jucerFormatVersion="1">
   <MAINGROUP id="xFRVkA" name="LookAndFeelCustomisationTutorial">
+    <FILE id="BU1avk" name="ArialCE.cpp" compile="1" resource="0" file="Source/font/ArialCE.cpp"/>
+    <FILE id="m7k4a1" name="ArialCE.h" compile="0" resource="0" file="Source/font/ArialCE.h"/>
+    <GROUP id="{6D7B9C4D-73E3-D312-1EBA-84CFA6036E48}" name="font">
+      <FILE id="vV0BpE" name="ArialCE.ttf" compile="0" resource="1" file="Source/font/ArialCE.ttf"/>
+      <FILE id="JzXCBd" name="ArialCEBold.ttf" compile="0" resource="1" file="Source/font/ArialCEBold.ttf"/>
+      <FILE id="kiitQg" name="ArialCEBoldItalic.ttf" compile="0" resource="1"
+            file="Source/font/ArialCEBoldItalic.ttf"/>
+      <FILE id="mVJb8w" name="ArialCEItalic.ttf" compile="0" resource="1"
+            file="Source/font/ArialCEItalic.ttf"/>
+    </GROUP>
     <GROUP id="{256FDECF-0B4B-6913-8527-FC96AD66E5A0}" name="Source">
       <FILE id="p3VtES" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="GMJm65" name="LookAndFeelCustomisationTutorial_01.h" compile="0"
             resource="0" file="Source/LookAndFeelCustomisationTutorial_01.h"/>
     </GROUP>
+    <FILE id="QXMtdy" name="abschallLookAndFeel_Sliders.h" compile="0"
+          resource="0" file="Source/abschallLookAndFeel_Sliders.h"/>
   </MAINGROUP>
   <MODULES>
     <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>

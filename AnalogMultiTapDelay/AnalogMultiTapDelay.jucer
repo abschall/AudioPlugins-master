@@ -5,10 +5,12 @@
               companyName="Abschall" pluginManufacturer="Abschall" pluginManufacturerCode="Absc"
               pluginName="Multi Tap Delay" pluginDesc="Analog Multi Tap Delay">
   <MAINGROUP id="JXNyWk" name="AnalogMultiTapDelay">
+    <FILE id="kjAhxl" name="ArialCE.cpp" compile="1" resource="0" file="Source/font/ArialCE.cpp"/>
+    <FILE id="xUedo0" name="ArialCE.h" compile="0" resource="0" file="Source/font/ArialCE.h"/>
     <GROUP id="{EB72B175-2189-BE47-2500-395B5E4FF829}" name="Source">
+      <FILE id="LvCOmj" name="abschallLookAndFeel_Sliders.h" compile="0"
+            resource="0" file="Source/abschallLookAndFeel_Sliders.h"/>
       <FILE id="a7uUd2" name="MultiTapDelay.h" compile="0" resource="0" file="Source/MultiTapDelay.h"/>
-      <FILE id="A54VbK" name="combFilterWithFB.h" compile="0" resource="0"
-            file="../dsp_fv/combFilterWithFB.h"/>
       <FILE id="Vx2W0C" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="xL9XBX" name="PluginProcessor.h" compile="0" resource="0"
@@ -17,6 +19,8 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="AzqNhM" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
+    <FILE id="A54VbK" name="combFilterWithFB.h" compile="0" resource="0"
+          file="../dsp_fv/combFilterWithFB.h"/>
     <FILE id="KPYJWR" name="biquad.h" compile="0" resource="0" file="../dsp_fv/biquad.h"/>
     <FILE id="hpZ1p0" name="circularBuffer.h" compile="0" resource="0"
           file="../dsp_fv/circularBuffer.h"/>
