@@ -12,6 +12,12 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="mjz9SK" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
+    <FILE id="tU7jUu" name="circularBuffer.h" compile="0" resource="0"
+          file="../dsp_fv/circularBuffer.h"/>
+    <FILE id="jwI0yZ" name="classicFilters.h" compile="0" resource="0"
+          file="../dsp_fv/classicFilters.h"/>
+    <FILE id="eeNJUL" name="combFilterWithFB.h" compile="0" resource="0"
+          file="../dsp_fv/combFilterWithFB.h"/>
   </MAINGROUP>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
