@@ -3,7 +3,7 @@
 #include "circularBuffer.h"
 /// <summary>
 /// Comb Filter (one channel) with Feedback, inherits from the CircularBuffer class
-/// Public members are : dry, wet (mix) and feedback ((gain)ratio of output signal added to input)
+/// Public members are : dry, wet (mix) and feedback ((gain) ratio of output signal added to input)
 ///  in the feedback path 
 /// </summary>
 class CombFilterWithFB : public CircularBuffer<float>
@@ -108,7 +108,7 @@ public:
     float dry;
     float wet;
     float feedbackGain;
-    float pingPongRatio = 2.0;
+
 protected:
     double bufferLengthMsec;
     unsigned int bufferLength; // in samples
@@ -234,7 +234,7 @@ public:
     float dry;
     float wet;
     float feedbackGain;
-    float pingPongRatio = 2.0;
+
 protected:
     double bufferLengthMsec;
     unsigned int bufferLength; // in samples

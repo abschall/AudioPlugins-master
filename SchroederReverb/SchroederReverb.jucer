@@ -12,6 +12,7 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="mjz9SK" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
+    <FILE id="nIhqPw" name="allPassFilter.h" compile="0" resource="0" file="../dsp_fv/allPassFilter.h"/>
     <FILE id="tU7jUu" name="circularBuffer.h" compile="0" resource="0"
           file="../dsp_fv/circularBuffer.h"/>
     <FILE id="jwI0yZ" name="classicFilters.h" compile="0" resource="0"
