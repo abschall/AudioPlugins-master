@@ -11,10 +11,20 @@ using namespace std;
 // with wire-AND-ing wrapping mechanism
 // ========================================================================
 
+
+
 template <typename T>
 class CircularBuffer
 {
 public:
+    double doLinearInterpolation(double y1, double y2, double fractional_X)
+    {
+        if (fractional_X >= 1.0)return y2;
+
+        // weighted sum method of interpolation 
+        return fractional_X * y2 + (1.0 - fractional_X) * y1;
+
+    }
     CircularBuffer()
     {
 
@@ -43,6 +53,19 @@ public:
         readIndex = writeIndex - offset;
         readIndex &= wrapMask;
         return buffer[readIndex];
+    }
+
+    T readBuffer(double delayInFractionalSamples, bool interpolate = true)
+    {
+        T y1 = readBuffer((unsigned int)delayInFractionalSamples);
+
+        if (interpolate = false) 
+            return y1;
+        T y2 = readBuffer((unsigned int)delayInFractionalSamples + 1);
+
+        double fraction = delayInFractionalSamples - (int)delayInFractionalSamples;
+
+        return doLinearInterpolation(y1, y2, fraction);
     }
 
     // add fractional read Buffer method
