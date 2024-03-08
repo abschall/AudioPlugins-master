@@ -9,6 +9,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "SchroederReverb.h"
 
 //==============================================================================
 /**
@@ -55,5 +56,15 @@ public:
 
 private:
     //==============================================================================
+    juce::AudioProcessorValueTreeState parameters;
+    double currentSampleRate;
+
+    // Effect control parameter
+    std::atomic<float>* mix = nullptr;
+
+    // The reverb algorithm
+    SchroederReverbSeries reverbAlgorithm;
+    ReverbControlParameters reverbControl;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SchroederReverbAudioProcessor)
 };
