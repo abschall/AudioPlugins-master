@@ -1,7 +1,4 @@
 #pragma once
-
-//#include "../../dsp_fv/allPassFilter.h"
-//#include "../../dsp_fv/combFilterWithFB.h"
 #include "../../dsp_fv/circularBuffer.h"
 
 const unsigned int NUMBER_COMB_FILTERS = 4; // constant: not the most elegant solution here,should be specified inside the reverbStruct class
@@ -15,15 +12,27 @@ struct APFParameters
 	double delayTimeInSamples;
 };
 
+/// <summary>
+/// APF class,as described in the MR Schroeder 1961 and 1962 reverberation papers
+/// </summary>
 class allPassFilter : private CircularBuffer<float>
 {
 public:
+	/// <summary>
+	/// sets the delay time in ms, feedback loop gain, and enables/ disables  the comb filter 
+	/// </summary>
+	/// <param name="pParameters"></param>
 	void setParameters(APFParameters pParameters)
 	{
 		parameters.delayTimeInMs = pParameters.delayTimeInMs;
 		parameters.feedbackGain = pParameters.feedbackGain;
 		parameters.enableAPF = pParameters.enableAPF;
 	}
+	/// <summary>
+	/// creates the Comb Filter's Delay Buffer (bufferLength = delay time),
+	/// also sets the delay time in number of samples according to the sample rate 
+	/// </summary>
+	/// <param name="pSampleRate"></param>
 	void createDelayBuffer(double pSampleRate)
 	{
 		currentSampleRate = pSampleRate;
@@ -32,6 +41,11 @@ public:
 		parameters.delayTimeInSamples = parameters.delayTimeInMs * samplePerMsec;
 		delayBuffer.createBuffer(bufferLength);
 	}
+	/// <summary>
+	/// processes the incoming audio sample, output is full wet 
+	/// </summary>
+	/// <param name="inputXn"></param>
+	/// <returns></returns>
 	virtual float processAudioSample(float inputXn)
 	{
 		auto ynD = 0.0;
@@ -59,19 +73,34 @@ struct CombFilterParameters
 {
 	double delayTimeInMs = 0.0;
 	float feedbackGain = 0.0;
-	bool enableComb= false;
-	double delayTimeInSamples;
+	bool enableComb = false;
+	double delayTimeInSamples =  0.0;
 };
 
+/// <summary>
+/// simple recirculating Comb Filter class, the comb filters have fixed delay times and buffer length
+/// !!! This should be modified to a common max buffer length ! The class as is (3/08/2024) does not 
+/// lend itself to delay time modulation 
+/// </summary>
 class CombFilter : private CircularBuffer<float>
 {
 public:
+	/// <summary>
+	/// sets the delay time in ms, feedback loop gain, and enables/ disables  the comb filter 
+	/// </summary>
+	/// <param name="pParameters"></param>
 	void setParameters(CombFilterParameters pParameters)
 	{
 		parameters.delayTimeInMs = pParameters.delayTimeInMs;
 		parameters.feedbackGain = pParameters.feedbackGain;
 		parameters.enableComb = pParameters.enableComb;
 	}
+
+	/// <summary>
+	/// creates the Comb Filter's Delay Buffer (bufferLength = delay time),
+	/// also sets the delay time in number of samples according to the sample rate 
+	/// </summary>
+	/// <param name="pSampleRate"></param>
 	void createDelayBuffer(double pSampleRate)
 	{
 		currentSampleRate = pSampleRate;
@@ -80,6 +109,11 @@ public:
 		parameters.delayTimeInSamples = parameters.delayTimeInMs * samplePerMsec;
 		delayBuffer.createBuffer(bufferLength);
 	}
+	/// <summary>
+	/// processes the incoming audio sample, output is full wet 
+	/// </summary>
+	/// <param name="inputXn"></param>
+	/// <returns></returns>
 	virtual float processAudioSample(float inputXn)
 	{
 		// full wet signal processing 
@@ -103,14 +137,26 @@ protected:
 	CircularBuffer delayBuffer;
 };
 
-struct ReverbStructureParameters
+/// <summary>
+/// Outsidecontrol parameters (linked to Plugin parameters)
+/// </summary>
+struct ReverbControlParameters
 {
-	// Inside parameters,a re fixed and may not be changed by user outside (therefore build a class here)
+	double mix;
+};
 
+/// <summary>
+/// sets the Schroeder Reverb 1962,comb and allpass filters' parameters
+/// The reverb is composed of 4 parallel comb filters, which feed into 2 short comb APF
+/// creatng an echo density of ~1000echoes/s
+/// </summary>
+struct SchroederReverbStructureParameters
+{
+	// Inside parameters,a pre fixed and may not be changed by user outside (therefore build a class here)
 	CombFilterParameters comb1 = { 45.0, 0.85, true };
 	CombFilterParameters comb2 = { 38.12, 0.87, true };
 	CombFilterParameters comb3 = { 33.25, 0.89, true };
-	CombFilterParameters comb4 = { 30.0, 0.91, true };
+	CombFilterParameters comb4 = { 30.0, 0.9, true };
 	CombFilterParameters combFilterParameters[NUMBER_COMB_FILTERS] =  {comb1, comb2, comb3, comb4 };
 
 	APFParameters apf1 = { 1.0, 0.63, true};
@@ -120,23 +166,29 @@ struct ReverbStructureParameters
 
 };
 
-struct ReverbControlParameters
-{
-	// Outside control parameters
-	double mix; // single outside control parameter for now
-};
-
-
+/// <summary>
+/// Schroeder Reverb (1962 Natural sounding artifical reverbaration) algorithm class
+/// composed of 4 parallel comb filters, which feed into 2 short comb APF.
+/// 
+/// My note: I do not like the sound.
+/// </summary>
 class SchroederReverb
 {
 public:
-	// sets the reverb CONTROL parameters (outside controls)
+	/// <summary>
+	/// sets the reverb CONTROL parameters (outside controls)
+	/// </summary>
+	/// <param name="pControlParameters"></param>
 	void setParameters(ReverbControlParameters pControlParameters)
 	{
 		controlParameters.mix = pControlParameters.mix;
 		// add additionnal control parameters here 
 	}
-	// resets all the inner components to a common state
+
+	/// <summary>
+	/// sets the inner (sub) components to a predefined state, given by the SchroederReverbStructureParameters struct
+	/// </summary>
+	/// <param name="pSampleRate"></param>
 	virtual void reset(double pSampleRate)
 	{
 		sampleRate = pSampleRate;
@@ -151,21 +203,26 @@ public:
 			APF[numbAPF].createDelayBuffer(sampleRate);
 		}
 	}
-
+	/// <summary>
+	/// processes the incoming audio sample by the reverb algorithm
+	/// </summary>
+	/// <param name="inputXn"></param>
+	/// <returns></returns>
 	virtual float processAudioSample(float inputXn)
 	{
 		float yn = 0.0f;
 
 		for (auto numComb = 0; numComb < NUMBER_COMB_FILTERS; ++numComb)
 		{
-			yn += combFilters[numComb].processAudioSample(inputXn) * 0.125;
+			yn += combFilters[numComb].processAudioSample(inputXn);
 		}
+
 		for (auto numbAPF = 0; numbAPF < NUMBER_OUTPUT_APF; ++numbAPF)
 		{
 			yn = APF[numbAPF].processAudioSample(yn);
 		}
-		
-		return ((1 - controlParameters.mix) * inputXn + (controlParameters.mix) * yn);
+		auto output = (1 - controlParameters.mix) * inputXn + (controlParameters.mix) * yn;
+		return output;
 
 
 	}
@@ -174,18 +231,20 @@ protected:
 	double sampleRate;
 	ReverbControlParameters controlParameters;
 private:
-	ReverbStructureParameters structureParameters;
-
+	SchroederReverbStructureParameters structureParameters;
 	CombFilter combFilters[4];
 	allPassFilter APF[2];
 
 };
 
-struct SchroederSerialStructureParameters
+/// <summary>
+/// sets the Schroeder Reverb 1961, series allpass filters' parameters
+/// </summary>
+struct SchroederSeriesStructureParameters
 {
-	// Inside parameters,a fixed and may not be changed by user outside (therefore build a class here)
+	// Inside parameters, are fixed and may not be changed by user outside (therefore build a class here)
 
-	// based onthe serial APF reverb structure suggested in the 1961 paper 
+	// based on the serial APF reverb structure suggested in the 1961 paper 
 	APFParameters apf1 = { 100.0, 0.7, true };
 	APFParameters apf2 = { 68.0, -0.7, true };
 	APFParameters apf3 = { 60.0, 0.7, true };
@@ -195,32 +254,40 @@ struct SchroederSerialStructureParameters
 	APFParameters apfParameters[5] = { apf1, apf2, apf3, apf4, apf5 };
 };
 
-class SchroederReverbSeries 
+/// <summary>
+/// Schroeder "serial" Reverb (1961 "colorless" artifical reverberation ) algorithm class
+/// composed of 5 series APF.
+/// 
+/// My note: I like the sound of this simple reverb.
+/// </summary>
+class SchroederReverbSeries : public SchroederReverb
 {
 public:
-	// sets the reverb CONTROL parameters (outside controls)
-	void setParameters(ReverbControlParameters pControlParameters)
-	{
-		controlParameters.mix = pControlParameters.mix;
-		// add additionnal control parameters here 
-	}
-	void reset(double pSampleRate)
+	/// <summary>
+	///  sets the inner (sub) components to a predefined state, given by the SchroederSeriesStructureParameters struct
+	/// </summary>
+	/// <param name="pSampleRate"></param>
+	void reset(double pSampleRate) override
 	{
 		sampleRate = pSampleRate;
 
 		for (auto numbAPF = 0; numbAPF < 5; ++numbAPF)
 		{
-			APF2[numbAPF].setParameters(serialStructureParameters.apfParameters[numbAPF]);
-			APF2[numbAPF].createDelayBuffer(sampleRate);
+			APF[numbAPF].setParameters(seriesStructureParameters.apfParameters[numbAPF]);
+			APF[numbAPF].createDelayBuffer(sampleRate);
 		}
 	}
-
-	float processAudioSample(float inputXn)
+	/// <summary>
+	/// processes the incoming audio sample by the reverb algorithm
+	/// </summary>
+	/// <param name="inputXn"></param>
+	/// <returns></returns>
+	float processAudioSample(float inputXn) override
 	{
-		auto yn = APF2[0].processAudioSample(inputXn);
+		auto yn = APF[0].processAudioSample(inputXn);
 		for (auto numbAPF = 1; numbAPF < 5; ++numbAPF)
 		{
-			yn = APF2[numbAPF].processAudioSample(yn);
+			yn = APF[numbAPF].processAudioSample(yn);
 		}
 
 		auto output = (1 - controlParameters.mix) * inputXn + (controlParameters.mix) * yn;
@@ -228,9 +295,7 @@ public:
 	}
 protected:
 
-	double sampleRate;
-	ReverbControlParameters controlParameters;
 private:
-	SchroederSerialStructureParameters serialStructureParameters;
-	allPassFilter APF2[5];
+	SchroederSeriesStructureParameters seriesStructureParameters;
+	allPassFilter APF[5];
 };
