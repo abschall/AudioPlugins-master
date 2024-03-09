@@ -55,6 +55,13 @@ public:
         return buffer[readIndex];
     }
 
+    void flush()
+    {
+        for (auto i = 0; i < bufferLength; ++i)
+        {
+            writeBuffer(0.0);
+        }
+    }
     T readBuffer(double delayInFractionalSamples, bool interpolate = true)
     {
         T y1 = readBuffer((unsigned int)delayInFractionalSamples);
