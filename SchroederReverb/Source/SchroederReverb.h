@@ -1,9 +1,5 @@
 #pragma once
-#include "../../dsp_fv/circularBuffer.h"
 #include "../../dsp_fv/APFstructures.h"
-
-const unsigned int NUMBER_COMB_FILTERS = 4; // constant: not the most elegant solution here,should be specified inside the reverbStruct class
-const unsigned int NUMBER_OUTPUT_APF = 2;
 
 /// <summary>
 /// Outsidecontrol parameters (linked to Plugin parameters)
@@ -25,11 +21,13 @@ struct SchroederReverbStructureParameters
 	CombFilterParameters comb2 = { 38.12, 0.87, true };
 	CombFilterParameters comb3 = { 33.25, 0.89, true };
 	CombFilterParameters comb4 = { 30.0, 0.9, true };
-	CombFilterParameters combFilterParameters[NUMBER_COMB_FILTERS] =  {comb1, comb2, comb3, comb4 };
+	CombFilterParameters combFilterParameters[4] =  {comb1, comb2, comb3, comb4 };
+	unsigned int numberOfCombFilters = sizeof(combFilterParameters)/sizeof(combFilterParameters[0]);
 
 	APFParameters apf1 = { 1.0, 0.63, true};
 	APFParameters apf2 = { 5.0, 0.63, true};
-	APFParameters apfParameters[NUMBER_OUTPUT_APF] = {apf1, apf2};
+	APFParameters apfParameters[2] = {apf1, apf2};
+	unsigned int numberOfAPF = sizeof(apfParameters)/ sizeof(apfParameters[0]);
 
 
 };
@@ -60,12 +58,12 @@ public:
 	virtual void reset(double pSampleRate)
 	{
 		sampleRate = pSampleRate;
-		for (auto numComb = 0; numComb < NUMBER_COMB_FILTERS; ++numComb)
+		for (auto numComb = 0; numComb < structureParameters.numberOfCombFilters; ++numComb)
 		{
 			combFilters[numComb].setParameters(structureParameters.combFilterParameters[numComb]);
 			combFilters[numComb].createDelayBuffer(sampleRate);
 		}
-		for (auto numbAPF = 0; numbAPF < NUMBER_OUTPUT_APF; ++numbAPF)
+		for (auto numbAPF = 0; numbAPF < structureParameters.numberOfAPF; ++numbAPF)
 		{
 			APF[numbAPF].setParameters(structureParameters.apfParameters[numbAPF]);
 			APF[numbAPF].createDelayBuffer(sampleRate);
@@ -80,12 +78,12 @@ public:
 	{
 		float yn = 0.0f;
 
-		for (auto numComb = 0; numComb < NUMBER_COMB_FILTERS; ++numComb)
+		for (auto numComb = 0; numComb < structureParameters.numberOfCombFilters; ++numComb)
 		{
 			yn += combFilters[numComb].processAudioSample(inputXn);
 		}
 
-		for (auto numbAPF = 0; numbAPF < NUMBER_OUTPUT_APF; ++numbAPF)
+		for (auto numbAPF = 0; numbAPF < structureParameters.numberOfAPF; ++numbAPF)
 		{
 			yn = APF[numbAPF].processAudioSample(yn);
 		}
@@ -120,6 +118,7 @@ struct SchroederSeriesStructureParameters
 	APFParameters apf5 = { 5.85, 0.7, true };
 
 	APFParameters apfParameters[5] = { apf1, apf2, apf3, apf4, apf5 };
+	unsigned int numberOfAPF = sizeof(apfParameters)/ sizeof(apfParameters[0]);
 };
 
 /// <summary>
@@ -139,7 +138,7 @@ public:
 	{
 		sampleRate = pSampleRate;
 
-		for (auto numbAPF = 0; numbAPF < 5; ++numbAPF)
+		for (auto numbAPF = 0; numbAPF < seriesStructureParameters.numberOfAPF; ++numbAPF)
 		{
 			APF[numbAPF].setParameters(seriesStructureParameters.apfParameters[numbAPF]);
 			APF[numbAPF].createDelayBuffer(sampleRate);
@@ -153,7 +152,7 @@ public:
 	float processAudioSample(float inputXn) override
 	{
 		auto yn = APF[0].processAudioSample(inputXn);
-		for (auto numbAPF = 1; numbAPF < 5; ++numbAPF)
+		for (auto numbAPF = 1; numbAPF < seriesStructureParameters.numberOfAPF; ++numbAPF)
 		{
 			yn = APF[numbAPF].processAudioSample(yn);
 		}
