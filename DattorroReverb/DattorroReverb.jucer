@@ -4,6 +4,8 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="ZPCMaX" name="DattorroReverb">
     <GROUP id="{A9B8326B-46B8-AFC4-A7A8-D17A359C3326}" name="Source">
+      <FILE id="uCoiIT" name="SimpleModulatedDelay.h" compile="0" resource="0"
+            file="Source/SimpleModulatedDelay.h"/>
       <FILE id="izKN3g" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="PL2m0z" name="PluginProcessor.h" compile="0" resource="0"
