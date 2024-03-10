@@ -59,7 +59,7 @@ public:
     {
         for (auto i = 0; i < bufferLength; ++i)
         {
-            writeBuffer(0.0);
+            writeBuffer(0.0f);
         }
     }
     T readBuffer(double delayInFractionalSamples, bool interpolate = true)

@@ -9,6 +9,8 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "SimpleModulatedDelay.h"
+#include "DattorroPlateReverb.h"
 
 //==============================================================================
 /**
@@ -55,5 +57,27 @@ public:
 
 private:
     //==============================================================================
+    juce::AudioProcessorValueTreeState parameters;
+    double currentSampleRate;
+
+    // Effect control parameter
+    std::atomic<float>* mix = nullptr;
+
+
+    std::atomic<float>* inputDiffusion1 = nullptr;
+    std::atomic<float>* inputDiffusion2 = nullptr;
+
+    std::atomic<float>* decayDiffusion1 = nullptr;
+    std::atomic<float>* decayDiffusion2 = nullptr;
+    std::atomic<float>* decay = nullptr;
+
+    std::atomic<float>* damping = nullptr;
+    std::atomic<float>* bandwidth = nullptr;
+    // The reverb algorithm
+    SimpleModulatedDelay delayAlgorithm;
+    DelayControlParameters delayControl;
+    
+    DattorroPlateReverb reverbAlgorithm;
+    ReverbControlParameters controlParameters;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DattorroReverbAudioProcessor)
 };

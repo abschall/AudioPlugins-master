@@ -16,6 +16,8 @@
     </GROUP>
     <FILE id="RdonPg" name="APFstructures.h" compile="0" resource="0" file="../dsp_fv/APFstructures.h"/>
     <FILE id="AVhRNp" name="biquad.h" compile="0" resource="0" file="../dsp_fv/biquad.h"/>
+    <FILE id="AYtwWM" name="DattorroPlateReverb.h" compile="0" resource="0"
+          file="Source/DattorroPlateReverb.h"/>
     <FILE id="biXHaC" name="lfo.h" compile="0" resource="0" file="../dsp_fv/lfo.h"/>
   </MAINGROUP>
   <MODULES>

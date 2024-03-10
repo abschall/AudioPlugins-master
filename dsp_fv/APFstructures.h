@@ -63,9 +63,9 @@ public:
 	/// </summary>
 	/// <param name="pDelayTime_samples"></param>
 	/// <returns></returns>
-	float readDelayLine(double pDelayTime_samples)
+	float readDelayLine(unsigned int pDelayTime_samples)
 	{
-		return delayBuffer.readBuffer(pDelayTime_samples);
+		return delayBuffer.readBuffer((unsigned int)pDelayTime_samples);
 	}
 
 protected:
@@ -123,9 +123,9 @@ public:
 	/// </summary>
 	/// <param name="pDelayTime_samples"></param>
 	/// <returns></returns>
-	float readDelayLine(double pDelayTime_samples)
+	float readDelayLine(unsigned int pDelayTime_samples)
 	{
-		return delayBuffer.readBuffer(pDelayTime_samples);
+		return delayBuffer.readBuffer((unsigned int) pDelayTime_samples);
 	}
 	/// <summary>
 	/// processes the incoming audio sample, output is full wet 
@@ -199,9 +199,9 @@ public:
 	/// </summary>
 	/// <param name="pDelayTime_samples"></param>
 	/// <returns></returns>
-	float readDelayLine(double pDelayTime_samples)
+	float readDelayLine(unsigned int pDelayTime_samples)
 	{
-		return delayBuffer.readBuffer(pDelayTime_samples);
+		return delayBuffer.readBuffer((unsigned int)pDelayTime_samples);
 	}
 	/// <summary>
 	/// processes the incoming audio sample, output is full wet 
