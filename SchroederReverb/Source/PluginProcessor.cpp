@@ -88,8 +88,8 @@ void SchroederReverbAudioProcessor::processBlock(juce::AudioBuffer<float>& buffe
     // update Reverb Algorithm parameters
     reverbAlgorithm.setParameters(reverbControl);
 
-    float rightIn = 0.0;
-    float leftIn = 0.0;
+    double rightIn = 0.0;
+    double leftIn = 0.0;
 
     for (auto sample = 0;sample < buffer.getNumSamples(); ++sample)
     {

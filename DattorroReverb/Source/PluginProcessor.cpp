@@ -25,6 +25,8 @@ DattorroReverbAudioProcessor::DattorroReverbAudioProcessor()
             std::make_unique<juce::AudioParameterFloat>(
             "mix", "Mix", juce::NormalisableRange<float>(0.0f, 1.0f),0.0f),
             std::make_unique<juce::AudioParameterFloat>(
+            "predelay", "Predelay", juce::NormalisableRange<float>(0.0f, 500.0f),0.0f),
+            std::make_unique<juce::AudioParameterFloat>(
             "inputDiffusion1", "Input Diffusion 1", juce::NormalisableRange<float>(0.0f, 0.9999999f),0.75f),
             std::make_unique<juce::AudioParameterFloat>(
             "inputDiffusion2", "Input Diffusion 2", juce::NormalisableRange<float>(0.0f, 0.9999999f),0.625f),
@@ -53,6 +55,7 @@ void DattorroReverbAudioProcessor::prepareToPlay (double sampleRate, int samples
 {
     currentSampleRate = sampleRate;
     mix = parameters.getRawParameterValue("mix");
+    predelay = parameters.getRawParameterValue("predelay");
     inputDiffusion1 = parameters.getRawParameterValue("inputDiffusion1");
     inputDiffusion2 = parameters.getRawParameterValue("inputDiffusion2");
     decayDiffusion1 = parameters.getRawParameterValue("decayDiffusion1");
@@ -61,7 +64,9 @@ void DattorroReverbAudioProcessor::prepareToPlay (double sampleRate, int samples
     damping = parameters.getRawParameterValue("damping");
     bandwidth = parameters.getRawParameterValue("bandwidth");
 
+
     controlParameters.mix = mix->load();
+    controlParameters.predelay = predelay->load();
     controlParameters.inputDiffusion1 = inputDiffusion1->load();
     controlParameters.inputDiffusion2 = inputDiffusion2->load();
     controlParameters.decayDiffusion1 = decayDiffusion1->load();
@@ -117,6 +122,7 @@ void DattorroReverbAudioProcessor::processBlock (juce::AudioBuffer<float>& buffe
 
     // get plugin parameters values
     controlParameters.mix = mix->load();
+    controlParameters.predelay = predelay->load();
     controlParameters.inputDiffusion1 = inputDiffusion1->load();
     controlParameters.inputDiffusion2 = inputDiffusion2->load();
     controlParameters.decayDiffusion1 = decayDiffusion1->load();

@@ -5,7 +5,7 @@
 struct ReverbControlParameters
 {
 	double mix;
-
+	double predelay;
 	double inputDiffusion1;
 	double inputDiffusion2;
 
@@ -21,6 +21,9 @@ struct ReverbControlParameters
 
 struct ReverbStructureParameters
 {
+	// predelay
+	delayLineParameters predelayParam = { 500.0, true };
+
 	// input diffusers
 	APFParameters inputDiffuser1Param = { 4.93, 0.75, true };
 	APFParameters inputDiffuser2Param = { 3.6, 0.75, true };
@@ -50,6 +53,7 @@ class DattorroPlateReverb
 public:
 	void setParameters(ReverbControlParameters pControlParameters)
 	{
+		controlParameters.predelay = pControlParameters.predelay;
 		controlParameters.mix = pControlParameters.mix;
 		controlParameters.inputDiffusion1 = pControlParameters.inputDiffusion1;
 		controlParameters.inputDiffusion2 = pControlParameters.inputDiffusion2;
@@ -70,6 +74,11 @@ public:
 		modulatedAPF2.reset(sampleRate);
 
 		setParameters(pControlParameters);
+
+		// update predelay delay time
+		structureParameters.predelayParam.delayTime_ms = controlParameters.predelay;
+		predelayLine.setParameters(structureParameters.predelayParam);
+
 		// update inputDiffusers inputDiffusion 1 and 2
 		structureParameters.inputDiffuser1Param.feedbackGain = -controlParameters.inputDiffusion1;
 		structureParameters.inputDiffuser2Param.feedbackGain = -controlParameters.inputDiffusion1;
@@ -105,6 +114,7 @@ public:
 		modulatedAPF2.reset(sampleRate);
 
 		// set parameters
+		predelayLine.setParameters(structureParameters.predelayParam);
 		modulatedAPF1.setParameters(structureParameters.modulatedAPF1Param, structureParameters.modulatedAPF1_lfoParam);
 		modulatedAPF2.setParameters(structureParameters.modulatedAPF2Param, structureParameters.modulatedAPF2_lfoParam);
 
@@ -129,6 +139,7 @@ public:
 
 
 		// create buffers
+		predelayLine.createDelayBuffer(sampleRate);
 		modulatedAPF1.createDelayBuffer(sampleRate);
 		modulatedAPF2.createDelayBuffer(sampleRate);
 
@@ -153,7 +164,9 @@ public:
 		float output = 0.0f;
 		static float tank1_wet = 0.0f, tank2_wet = 0.0f;
 
-		output = bandwidthLPF.	processAudioSample(input);
+		output = predelayLine.processAudioSample(input);
+
+		output = bandwidthLPF.	processAudioSample(output);
 
 		output = inputDiffuser1.processAudioSample(output);
 		output = inputDiffuser2.processAudioSample(output);
@@ -219,6 +232,7 @@ private:
 
 	alternateAllPassFilter inputDiffuser1, inputDiffuser2, inputDiffuser3, inputDiffuser4;
 	alternateAllPassFilter_modulated  modulatedAPF1, modulatedAPF2;
+	delayLine predelayLine;
 	delayLine delayLine1, delayLine2, delayLine3, delayLine4;
 	alternateAllPassFilter alternateAPF5, alternateAPF6;
 	ClassicFilters bandwidthLPF, dampingLPF1, dampingLPF2;

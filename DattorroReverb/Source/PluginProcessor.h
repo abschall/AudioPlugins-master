@@ -62,7 +62,7 @@ private:
 
     // Effect control parameter
     std::atomic<float>* mix = nullptr;
-
+    std::atomic<float>* predelay = nullptr;
 
     std::atomic<float>* inputDiffusion1 = nullptr;
     std::atomic<float>* inputDiffusion2 = nullptr;

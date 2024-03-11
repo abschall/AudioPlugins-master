@@ -23,6 +23,7 @@ public:
 	{
 		parameters.delayTime_ms = pParameters.delayTime_ms;
 		parameters.enableDelay = pParameters.enableDelay;
+		parameters.delayTime_samples = (unsigned int) parameters.delayTime_ms * samplesPerMsec + 1;
 	}
 	/// <summary>
 	/// creates the Delay Line's Delay Buffer (bufferLength = delay time),
@@ -32,9 +33,9 @@ public:
 	void createDelayBuffer(double pSampleRate) 
 	{
 		currentSampleRate = pSampleRate;
-		auto samplePerMsec = currentSampleRate / 1000.0;
-		auto bufferLength = (unsigned int)(parameters.delayTime_ms * samplePerMsec) + 1;
-		parameters.delayTime_samples = parameters.delayTime_ms * samplePerMsec;
+		samplesPerMsec = currentSampleRate / 1000.0;
+		auto bufferLength = (unsigned int)(parameters.delayTime_ms * samplesPerMsec) + 1;
+		parameters.delayTime_samples = bufferLength;
 		delayBuffer.createBuffer(bufferLength);
 		delayBuffer.flush();
 	}
@@ -72,6 +73,7 @@ protected:
 	delayLineParameters parameters;
 	double currentSampleRate;
 	CircularBuffer delayBuffer;
+	double samplesPerMsec;
 };
 
 
@@ -100,6 +102,7 @@ public:
 		parameters.delayTime_ms = pParameters.delayTime_ms;
 		parameters.feedbackGain = pParameters.feedbackGain;
 		parameters.enableComb = pParameters.enableComb;
+		parameters.delayTime_samples = (unsigned int)parameters.delayTime_ms * samplesPerMsec + 1;
 	}
 
 	/// <summary>
@@ -110,9 +113,9 @@ public:
 	void createDelayBuffer(double pSampleRate)
 	{
 		currentSampleRate = pSampleRate;
-		auto samplePerMsec = currentSampleRate / 1000.0;
-		auto bufferLength = (unsigned int)(parameters.delayTime_ms * samplePerMsec) + 1;
-		parameters.delayTime_samples = parameters.delayTime_ms * samplePerMsec;
+		samplesPerMsec = currentSampleRate / 1000.0;
+		auto bufferLength = (unsigned int)(parameters.delayTime_ms * samplesPerMsec) + 1;
+		parameters.delayTime_samples = (unsigned int) parameters.delayTime_ms * samplesPerMsec + 1;
 		delayBuffer.createBuffer(bufferLength);
 		delayBuffer.flush();
 	}
@@ -138,8 +141,7 @@ public:
 
 		if (parameters.enableComb == true)
 		{
-			float ynD = 0.0f;
-			ynD = delayBuffer.readBuffer(parameters.delayTime_samples, true);
+			auto ynD = delayBuffer.readBuffer(parameters.delayTime_samples, true);
 			auto ynFullWet = inputXn + parameters.feedbackGain * ynD;
 			delayBuffer.writeBuffer(ynFullWet);
 
@@ -152,6 +154,7 @@ public:
 protected:
 	CombFilterParameters parameters;
 	double currentSampleRate;
+	double samplesPerMsec;
 	CircularBuffer delayBuffer;
 };
 
@@ -178,6 +181,7 @@ public:
 		parameters.delayTime_ms = pParameters.delayTime_ms;
 		parameters.feedbackGain = pParameters.feedbackGain;
 		parameters.enableAPF = pParameters.enableAPF;
+		parameters.delayTime_samples = (unsigned int)parameters.delayTime_ms * samplesPerMsec + 1;
 	}
 	/// <summary>
 	/// creates the Comb Filter's Delay Buffer (bufferLength = delay time),
@@ -187,9 +191,9 @@ public:
 	virtual void createDelayBuffer(double pSampleRate)
 	{
 		currentSampleRate = pSampleRate;
-		auto samplePerMsec = currentSampleRate / 1000.0;
-		auto bufferLength = (unsigned int)(parameters.delayTime_ms * samplePerMsec) + 1;
-		parameters.delayTime_samples = parameters.delayTime_ms * samplePerMsec;
+		samplesPerMsec = currentSampleRate / 1000.0;
+		auto bufferLength = (unsigned int)(parameters.delayTime_ms * samplesPerMsec) + 1;
+		parameters.delayTime_samples = (unsigned int)parameters.delayTime_ms * samplesPerMsec + 1;
 		delayBuffer.createBuffer(bufferLength);
 		delayBuffer.flush();
 	}
@@ -227,6 +231,7 @@ public:
 protected:
 	APFParameters parameters; //change parameters by apfParameters 
 	double currentSampleRate;
+	double samplesPerMsec;
 	CircularBuffer delayBuffer;
 };
 
@@ -284,10 +289,10 @@ public:
 	void createDelayBuffer(double pSampleRate) override
 	{
 		currentSampleRate = pSampleRate;
-		auto samplePerMsec = currentSampleRate / 1000.0;
-		auto bufferLength = (unsigned int)((parameters.delayTime_ms + apfModParameters.excursion_ms) * samplePerMsec + 1);
-		parameters.delayTime_samples = parameters.delayTime_ms * samplePerMsec;
-		apfModParameters.excursion_samples = apfModParameters.excursion_ms * samplePerMsec;
+		samplesPerMsec = currentSampleRate / 1000.0;
+		auto bufferLength = (unsigned int)((parameters.delayTime_ms + apfModParameters.excursion_ms) * samplesPerMsec + 1);
+		parameters.delayTime_samples = parameters.delayTime_ms * samplesPerMsec;
+		apfModParameters.excursion_samples = apfModParameters.excursion_ms * samplesPerMsec;
 		delayBuffer.createBuffer(bufferLength);
 		delayBuffer.flush();
 	}
