@@ -78,7 +78,7 @@ protected:
 struct CombFilterParameters
 {
 	double delayTime_ms = 0.0;
-	float feedbackGain = 0.0;
+	double feedbackGain = 0.0;
 	bool enableComb = false;
 	double delayTime_samples = 0.0;
 };
@@ -139,7 +139,7 @@ public:
 		if (parameters.enableComb == true)
 		{
 			float ynD = 0.0f;
-			ynD = delayBuffer.readBuffer(parameters.delayTime_samples);
+			ynD = delayBuffer.readBuffer(parameters.delayTime_samples, true);
 			auto ynFullWet = inputXn + parameters.feedbackGain * ynD;
 			delayBuffer.writeBuffer(ynFullWet);
 
@@ -158,7 +158,7 @@ protected:
 struct APFParameters
 {
 	double delayTime_ms = 0.0;
-	float feedbackGain = 0.0;
+	double feedbackGain = 0.0;
 	bool enableAPF = false;
 	double delayTime_samples;
 };
@@ -240,7 +240,7 @@ public:
 	{
 		if (parameters.enableAPF == true)
 		{
-			auto ynD = delayBuffer.readBuffer((unsigned int) parameters.delayTime_samples);
+			auto ynD = delayBuffer.readBuffer(parameters.delayTime_samples, true);
 			auto temp = inputXn + ynD * parameters.feedbackGain;
 			delayBuffer.writeBuffer(temp);
 			auto yn = -parameters.feedbackGain * temp + ynD;
@@ -285,7 +285,7 @@ public:
 	{
 		currentSampleRate = pSampleRate;
 		auto samplePerMsec = currentSampleRate / 1000.0;
-		auto bufferLength = (unsigned int)(parameters.delayTime_ms + apfModParameters.excursion_ms) * samplePerMsec + 1;
+		auto bufferLength = (unsigned int)((parameters.delayTime_ms + apfModParameters.excursion_ms) * samplePerMsec + 1);
 		parameters.delayTime_samples = parameters.delayTime_ms * samplePerMsec;
 		apfModParameters.excursion_samples = apfModParameters.excursion_ms * samplePerMsec;
 		delayBuffer.createBuffer(bufferLength);
@@ -296,9 +296,15 @@ public:
 	{
 		if (parameters.enableAPF == true)
 		{
-			auto outLfo = lfo.renderAudioOuput();
-			auto modValue = outLfo.normalOutput * apfModParameters.excursion_samples;
-			auto ynD = delayBuffer.readBuffer(parameters.delayTime_samples + modValue);
+			double modValue = 0.0;
+
+			if(apfModParameters.enableLFO == true)
+			{ 
+				auto outLfo = lfo.renderAudioOuput();
+				auto modValue = outLfo.normalOutput * apfModParameters.excursion_samples;
+			}
+
+			auto ynD = delayBuffer.readBuffer(parameters.delayTime_samples + modValue,true);
 			auto temp = inputXn + parameters.feedbackGain * ynD;
 			delayBuffer.writeBuffer(temp);
 			auto yn = -parameters.feedbackGain * temp + ynD;
