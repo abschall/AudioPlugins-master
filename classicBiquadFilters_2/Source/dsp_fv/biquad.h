@@ -253,7 +253,6 @@ public:
     {
         filterType = type;
     }
-
     /// <summary>
     /// function used to process the incoming sample x(n),
     ///  override the biquadStruct::processAudioSample() method

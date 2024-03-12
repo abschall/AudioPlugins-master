@@ -61,10 +61,6 @@ private:
     ClassicBiquadFilters_2AudioProcessor& audioProcessor;
     
     // GUI elements
-    DecibelSlider dBSlider;
-    juce::Label dBLabel;
-    std::unique_ptr<SliderAttachment> dBAttachment;
-
     juce::Slider cutOffSlider;
     std::unique_ptr<SliderAttachment> cutOffAttachment;
     juce::Label cutOffLabel;

@@ -70,13 +70,6 @@ private:
     Biquad biquadFilter;
     float currentSampleRate;
 
-    //enum filterTypes {
-    //    LPF1 = 0,
-    //    LPF2 = 1,
-    //    HPF1 = 2,
-    //    HPF2 = 3
-    //};
-
     ClassicFilters filter;
     //juce::AudioParameterFloat* fc, * Q, * K;
     std::atomic<float>* fcParameter = nullptr;

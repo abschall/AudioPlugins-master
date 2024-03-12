@@ -36,18 +36,9 @@ ClassicBiquadFilters_2AudioProcessorEditor::ClassicBiquadFilters_2AudioProcessor
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (480, 300);
+    setSize (480, 130);
 
     // create Sliders
-    addAndMakeVisible(dBSlider);
-    dBSlider.setValue(0);
-    dBSlider.setTextBoxStyle(juce::Slider::TextBoxLeft, false, 90, dBSlider.getTextBoxHeight() - 2);
-    dBSlider.setSize(dBSlider.getTextBoxWidth() + 150, dBSlider.getTextBoxHeight());
-    dBSlider.setRange(-100.0f, 0);
-    dBSlider.setTextValueSuffix("dB");
-
-    addAndMakeVisible(dBLabel);
-    dBLabel.setText("Noise level (dB)", juce::dontSendNotification);
 
     addAndMakeVisible(cutOffSlider);
     cutOffSlider.setValue(10.0f);
@@ -55,7 +46,7 @@ ClassicBiquadFilters_2AudioProcessorEditor::ClassicBiquadFilters_2AudioProcessor
     cutOffSlider.setSkewFactorFromMidPoint(5000.0f);
     cutOffSlider.setTextValueSuffix("Hz");
     cutOffSlider.setSliderStyle(juce::Slider::Rotary);
-    cutOffSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, dBSlider.getTextBoxHeight() - 2);
+    cutOffSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, cutOffSlider.getTextBoxHeight() - 2);
     cutOffSlider.setSize(90, 90);
     cutOffAttachment.reset(new SliderAttachment(valueTreeState, "fc", cutOffSlider));
 
@@ -84,7 +75,7 @@ ClassicBiquadFilters_2AudioProcessorEditor::ClassicBiquadFilters_2AudioProcessor
     dryWetSlider.setValue(1.0f);
     dryWetSlider.setRange(0.0f, 1.0f);
     dryWetSlider.setSliderStyle(juce::Slider::Rotary);
-    dryWetSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, qSlider.getTextBoxHeight() - 2);
+    dryWetSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, dryWetSlider.getTextBoxHeight() - 2);
     dryWetSlider.setSize(90, 90);
     dryWetAttachment.reset(new SliderAttachment(valueTreeState, "dryWet", dryWetSlider));
 
@@ -129,9 +120,5 @@ void ClassicBiquadFilters_2AudioProcessorEditor::resized()
     cutOffSlider.setBounds(0, 30, widthTri, 90);
     qSlider.setBounds(widthTri, 30, widthTri, 90);
     dryWetSlider.setBounds(2 * widthTri, 30, widthTri, 90);
-
-    dBLabel.setBounds(0, heightTri, widthTri, 30);
-    dBSlider.setBounds(widthTri, heightTri, 250 + dBSlider.getTextBoxWidth(), 30);
-
     filterTypeChoice.setBounds(3 * widthTri + 10, 10, 100, heightTri/3);
 }

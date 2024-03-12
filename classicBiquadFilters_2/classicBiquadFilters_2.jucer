@@ -2,8 +2,8 @@
 
 <JUCERPROJECT id="vdOwe5" name="classicBiquadFilters_2" projectType="audioplug"
               useAppConfig="0" addUsingNamespaceToJuceHeader="0" displaySplashScreen="1"
-              jucerFormatVersion="1" pluginFormats="buildVST3" pluginVST3Category="Filter"
-              pluginCharacteristicsValue="pluginAAXDisableMultiMono,pluginIsSynth"
+              jucerFormatVersion="1" pluginFormats="buildStandalone,buildVST3"
+              pluginVST3Category="Filter" pluginCharacteristicsValue="pluginAAXDisableMultiMono,pluginIsSynth"
               companyName="Abschall">
   <MAINGROUP id="tqJOLD" name="classicBiquadFilters_2">
     <GROUP id="{232445BD-B198-7CD3-4F3C-F198EAC40D1A}" name="Source">

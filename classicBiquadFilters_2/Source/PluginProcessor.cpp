@@ -27,35 +27,18 @@ ClassicBiquadFilters_2AudioProcessor::ClassicBiquadFilters_2AudioProcessor():Aud
         std::make_unique<juce::AudioParameterFloat>(
             "qfactor",
             "Q Factor",
-            juce::NormalisableRange<float>(0.001f, 1.0f),
+            juce::NormalisableRange<float>(0.001f, 20.0f),
             0.1f),
         std::make_unique<juce::AudioParameterFloat>(
             "fc",
             "Cut-off Freq",
-            juce::NormalisableRange<float>(0.001f, 1.0f),
+            juce::NormalisableRange<float>(10.0f, 20000.0f),
             0.1f),
         std::make_unique<juce::AudioParameterFloat>(
             "filtertype",
             "Filter Type",
             juce::NormalisableRange<float>(0.0f, 0.75f),
             0.0f)
-        //// not an elegant way to select a filter at all
-        //std::make_unique<juce::AudioParameterBool>(
-        //    "lpf1",
-        //    "LPF1",
-        //    true),
-        //std::make_unique<juce::AudioParameterBool>(
-        //    "lpf2",
-        //    "LPF2",
-        //    false),
-        //std::make_unique<juce::AudioParameterBool>(
-        //    "hpf1",
-        //    "HPF1",
-        //    false),
-        //std::make_unique<juce::AudioParameterBool>(
-        //    "hpf2",
-        //    "HPF2",
-        //    false),
         }
     )
 {   
@@ -79,10 +62,10 @@ void ClassicBiquadFilters_2AudioProcessor::prepareToPlay (double sampleRate, int
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
-    auto fcCopy = *fcParameter * 5000.0f;
-    auto QCopy = *QParameter * 20.0f;
-    auto KCopy = *dryWetParameter * 1.0f;    
-    auto filterTypeCopy = *filterTypeParameter * 1.0f;
+    auto fcCopy = fcParameter->load();
+    auto QCopy = QParameter->load();
+    auto KCopy = dryWetParameter->load();
+    auto filterTypeCopy = filterTypeParameter->load();
 
     currentSampleRate = sampleRate;
     setFilterType((int) 4* filterTypeCopy);
@@ -104,14 +87,11 @@ void ClassicBiquadFilters_2AudioProcessor::processBlock(juce::AudioBuffer<float>
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
     auto mainInputOutput = getBusBuffer(buffer, true, 0);
-    //auto fcCopy = fc->get() * 5000.0f;
-    //auto QCopy = Q->get() * 20.0f;
-    //auto KCopy = K->get();
 
-    auto fcCopy = *fcParameter * 5000.0f;
-    auto QCopy = *QParameter * 20.0f;
-    auto KCopy = *dryWetParameter * 1;
-    auto filterTypeCopy = *filterTypeParameter * 1.0f;
+    auto fcCopy = fcParameter->load();
+    auto QCopy = QParameter->load();
+    auto KCopy = dryWetParameter->load();
+    auto filterTypeCopy = filterTypeParameter->load();
 
     setFilterType((int) 4 * filterTypeCopy);
     filter.setFilterGain(KCopy);
@@ -120,7 +100,9 @@ void ClassicBiquadFilters_2AudioProcessor::processBlock(juce::AudioBuffer<float>
     for (auto sample = 0;sample < buffer.getNumSamples(); ++sample)
     {
         for (auto i = 0; i < mainInputOutput.getNumChannels(); ++i)
+        {
             *mainInputOutput.getWritePointer(i, sample) = filter.processAudioSample(*mainInputOutput.getReadPointer(i, sample));
+        }
     }
 }
 
