@@ -181,16 +181,16 @@ void AnalogMultiTapDelayAudioProcessor::processBlock(juce::AudioBuffer<float>& b
     float leftIn = 0.0;
 
     // Processing audio 
-    if (delayBufferFilled == false)
-        // waiting for the buffer to fill up
-        for (auto sample = 0;sample < buffer.getNumSamples(); ++sample)
-        {
-                // calling the delay to processto fill the buffer, but not putting any sound out from the delay buffer
-                delayAlgorithm.processAudioSample(BufferIn_L[sample], BufferIn_R[sample]);
-                BufferOut_L[sample] = 0;
-                BufferOut_R[sample] = 0;
-        }
-    else
+    //if (delayBufferFilled == false)
+    //    // waiting for the buffer to fill up
+    //    for (auto sample = 0;sample < buffer.getNumSamples(); ++sample)
+    //    {
+    //            // calling the delay to processto fill the buffer, but not putting any sound out from the delay buffer
+    //            delayAlgorithm.processAudioSample(BufferIn_L[sample], BufferIn_R[sample]);
+    //            BufferOut_L[sample] = 0;
+    //            BufferOut_R[sample] = 0;
+    //    }
+    //else
         // once buffer has been filled, proceed to routine audio processing
         for (auto sample = 0;sample < buffer.getNumSamples(); ++sample)
         {

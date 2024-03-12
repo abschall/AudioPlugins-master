@@ -34,7 +34,7 @@ private:
     juce::Random random;
 };
 
-class MultiTapDelay : public CombFilterWithFB
+class MultiTapDelay : public CombFilterWithFB_stereo
 {
 public:
     void setParameters(double pCurrentSampleRate, double pDelayTimeMs, double pRatioBetweenTaps,

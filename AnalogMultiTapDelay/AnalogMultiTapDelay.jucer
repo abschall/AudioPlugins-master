@@ -3,10 +3,9 @@
 <JUCERPROJECT id="Q0VMCP" name="AnalogMultiTapDelay" projectType="audioplug"
               useAppConfig="0" addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1"
               companyName="Abschall" pluginManufacturer="Abschall" pluginManufacturerCode="Absc"
-              pluginName="Multi Tap Delay" pluginDesc="Analog Multi Tap Delay">
+              pluginName="Multi Tap Delay" pluginDesc="Analog Multi Tap Delay"
+              displaySplashScreen="1">
   <MAINGROUP id="JXNyWk" name="AnalogMultiTapDelay">
-    <FILE id="kjAhxl" name="ArialCE.cpp" compile="1" resource="0" file="Source/font/ArialCE.cpp"/>
-    <FILE id="xUedo0" name="ArialCE.h" compile="0" resource="0" file="Source/font/ArialCE.h"/>
     <GROUP id="{EB72B175-2189-BE47-2500-395B5E4FF829}" name="Source">
       <FILE id="LvCOmj" name="abschallLookAndFeel_Sliders.h" compile="0"
             resource="0" file="Source/abschallLookAndFeel_Sliders.h"/>
@@ -26,6 +25,8 @@
           file="../dsp_fv/circularBuffer.h"/>
     <FILE id="ImuBlj" name="classicFilters.h" compile="0" resource="0"
           file="../dsp_fv/classicFilters.h"/>
+    <FILE id="kjAhxl" name="ArialCE.cpp" compile="1" resource="0" file="Source/font/ArialCE.cpp"/>
+    <FILE id="xUedo0" name="ArialCE.h" compile="0" resource="0" file="Source/font/ArialCE.h"/>
   </MAINGROUP>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>

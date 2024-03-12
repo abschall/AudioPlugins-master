@@ -83,6 +83,7 @@ public:
         samplePerMsec = currentSampleRate / 1000.0;
         bufferLength = (unsigned int)(bufferLengthMsec * samplePerMsec) + 1;
         delayBuffer.createBuffer(bufferLength);
+        delayBuffer.flush();
     }
 
     /// <summary>
@@ -208,7 +209,8 @@ public:
         bufferLength = (unsigned int)(bufferLengthMsec * samplePerMsec) + 1;
         delayBufferL.createBuffer(bufferLength);
         delayBufferR.createBuffer(bufferLength);
-
+        delayBufferL.flush();
+        delayBufferR.flush();
     }
 
     /// <summary>
