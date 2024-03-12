@@ -64,24 +64,23 @@ class rotaryPot : public juce::Slider
 public:
     rotaryPot()
     {
-        setSliderStyle(rotaryPot::Rotary);
-        
-        setTextBoxStyle(rotaryPot::NoTextBox, false, 50, getTextBoxHeight() - 2);
+        setSliderStyle(rotaryPot::RotaryVerticalDrag);
+        setTextBoxStyle(rotaryPot::NoTextBox, false, 50, getTextBoxHeight() );
+
         valueLab.attachToComponent(this, false);
         onValueChange = [this] {
-            if (getMaximum() > 10)
+            if (getMaximum() > 100)
                 valueLab.setText(String(ceil(getValue())) + suffix, juce::dontSendNotification);
             else
                 valueLab.setText(String(ceil(getValue() * 100) / 100) + suffix, juce::dontSendNotification);
         };
         valueLab.setJustificationType(juce::Justification::verticallyCentred);
         this->getX();
-
     }
 
     void componentMovedOrResized(Component& component, bool /* wasMoved */, bool /* wasResized */)
     {
-        
+
         setSize(component.getWidth(), getHeight());
         setTopLeftPosition(component.getX(), component.getY() + getHeight());
         valueLab.componentMovedOrResized(*this, false, false);

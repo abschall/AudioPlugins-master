@@ -66,7 +66,7 @@ public:
     {
         T y1 = readBuffer((unsigned int)delayInFractionalSamples);
 
-        if (interpolate = false) 
+        if (interpolate == false) 
             return y1;
         T y2 = readBuffer((unsigned int)delayInFractionalSamples + 1);
 
