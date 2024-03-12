@@ -106,7 +106,7 @@ private:
     juce::String suffix = "";
 };
 
-class abschallLookAndFeel_Sliders : public juce::LookAndFeel_V4
+class abschallLookAndFeel_Sliders : public juce::LookAndFeel_V4, public juce::DeletedAtShutdown
 {
 public:
     abschallLookAndFeel_Sliders(juce::Colour pMainColour, juce::Colour pPointerColour) : 

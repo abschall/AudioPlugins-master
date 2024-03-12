@@ -25,7 +25,7 @@ public:
         bCoeffVector = { 0,0,0 };
     }
     Biquad(vector<float> aCoeff, vector<float> bCoeff, int numCoeff, juce::String f = "direct") :
-        aCoeffVector(aCoeff), bCoeffVector(bCoeff), numCoefficients(numCoeff), form(f) { }
+        aCoeffVector(aCoeff), bCoeffVector(bCoeff), form(f) { }
     ~Biquad() {}
 
     void updateParameters(vector<float> aCoeff, vector<float> bCoeff)
@@ -46,7 +46,6 @@ public:
             aCoeffVector[i] = 0.0f;
             bCoeffVector[i] = 0.0f;
         }
-        numCoefficients = aCoeffVector.size() + bCoeffVector.size();
 
         for (int i = 0; i < aCoeffVector.size(); ++i)
         {
@@ -111,7 +110,6 @@ private:
     // =============================================================================
     // Private members 
 
-    int numCoefficients;
     vector<float> aCoeffVector;
     vector<float> bCoeffVector;
 
