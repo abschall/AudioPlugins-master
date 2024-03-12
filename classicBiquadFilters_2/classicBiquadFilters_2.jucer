@@ -6,6 +6,16 @@
               pluginVST3Category="Filter" pluginCharacteristicsValue="pluginAAXDisableMultiMono,pluginIsSynth"
               companyName="Abschall">
   <MAINGROUP id="tqJOLD" name="classicBiquadFilters_2">
+    <GROUP id="{67769B0A-82AA-789D-91A6-1AD926A84DDD}" name="font">
+      <FILE id="P0a30a" name="ArialCE.cpp" compile="1" resource="0" file="Source/font/ArialCE.cpp"/>
+      <FILE id="l4NVtS" name="ArialCE.h" compile="0" resource="0" file="Source/font/ArialCE.h"/>
+      <FILE id="YRxg5v" name="ArialCE.ttf" compile="0" resource="1" file="Source/font/ArialCE.ttf"/>
+      <FILE id="RQfYyl" name="ArialCEBold.ttf" compile="0" resource="1" file="Source/font/ArialCEBold.ttf"/>
+      <FILE id="cyxnLO" name="ArialCEBoldItalic.ttf" compile="0" resource="1"
+            file="Source/font/ArialCEBoldItalic.ttf"/>
+      <FILE id="bwStg6" name="ArialCEItalic.ttf" compile="0" resource="1"
+            file="Source/font/ArialCEItalic.ttf"/>
+    </GROUP>
     <GROUP id="{232445BD-B198-7CD3-4F3C-F198EAC40D1A}" name="Source">
       <FILE id="RH58WP" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp" xcodeResource="0"/>
@@ -16,6 +26,8 @@
       <FILE id="EPRliK" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"
             xcodeResource="0"/>
     </GROUP>
+    <FILE id="CVtsPc" name="abschallLookAndFeel_Sliders.h" compile="0"
+          resource="0" file="Source/abschallLookAndFeel_Sliders.h"/>
     <FILE id="LW7vL2" name="biquad.h" compile="0" resource="0" file="Source/dsp_fv/biquad.h"/>
   </MAINGROUP>
   <MODULES>

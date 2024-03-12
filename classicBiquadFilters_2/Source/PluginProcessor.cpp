@@ -19,6 +19,7 @@ ClassicBiquadFilters_2AudioProcessor::ClassicBiquadFilters_2AudioProcessor():Aud
         nullptr,
         juce::Identifier::Identifier("ClassicBiquadFiltersVTS"),
         {
+            
         std::make_unique<juce::AudioParameterFloat>(
             "dryWet",
             "Dry Wet",
@@ -32,7 +33,7 @@ ClassicBiquadFilters_2AudioProcessor::ClassicBiquadFilters_2AudioProcessor():Aud
         std::make_unique<juce::AudioParameterFloat>(
             "fc",
             "Cut-off Freq",
-            juce::NormalisableRange<float>(10.0f, 20000.0f),
+            juce::NormalisableRange<float>(10.0f, 20000.0f,1.0f,.3f), // applying a skew factor to cut-offFreq
             0.1f),
         std::make_unique<juce::AudioParameterFloat>(
             "filtertype",
