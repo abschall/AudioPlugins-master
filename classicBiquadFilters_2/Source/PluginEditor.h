@@ -38,9 +38,9 @@ private:
     rotaryPot dryWetPot;
     vector<rotaryPot*> pots = { &cutOffPot, &qPot, &dryWetPot };
 
-    juce::Label cutOffLabel;
-    juce::Label qLabel;
-    juce::Label dryWetLabel;
+    titleLabel cutOffLabel;
+    titleLabel qLabel;
+    titleLabel dryWetLabel;
     vector<juce::Label*> titleLabels = { &cutOffLabel ,&qLabel, &dryWetLabel };
 
     std::unique_ptr<SliderAttachment> cutOffAttachment;

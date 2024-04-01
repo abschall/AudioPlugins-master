@@ -3,19 +3,28 @@
 #include <vector>
 #include "biquad.h"
 
-using std::vector;
-
+/// <summary>
+/// A class representing classic filters derived from the Biquad filter.
+/// </summary>
 class ClassicFilters : private Biquad
 {
 public:
 	Biquad() {}
-	void setParameters(float fc, float Q, juce::String filterType) override
-	{
 
-		Biquad::setParameters()
-	}
+    /// <summary>
+    /// Sets the parameters of the classic filter.
+    /// </summary>
+    /// <param name="fc">The corner frequency of the filter.</param>
+    /// <param name="Q">The quality factor of the filter.</param>
+    /// <param name="filterType">The type of filter.</param>
+    void setParameters(float fc, float Q, juce::String filterType) override
+    {
+
+        Biquad::setParameters();
+    }
+
 private:
-	float cornerFreq, qualityFactor, sampleFreq;
-	float gainControl;
-	
+    float cornerFreq, qualityFactor, sampleFreq;
+    float gainControl;
+    
 };

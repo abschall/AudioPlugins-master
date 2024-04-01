@@ -5,29 +5,52 @@ using std::vector;
 
 // =============================================================================
 // Biquad  Class
-// used to implement every kinf of second order filter, sample by sample reading
+// used to implement every kind of second order filter, sample by sample reading
 // =============================================================================
 
 
 class Biquad
 {
 public:
-    
+    /// <summary>
+    /// Default constructor for the Biquad filter.
+    /// </summary>
     Biquad() {
         aCoeffVector = { 0,0,0 };
         bCoeffVector = { 0,0,0 };
         form = "canonical";
-
     }
-    Biquad(const juce::String f):form(f)
+
+    /// <summary>
+    /// Constructor for the Biquad filter with a specified filter type.
+    /// </summary>
+    /// <param name="f">The filter type.</param>
+    Biquad(const juce::String f) :form(f)
     {
         aCoeffVector = { 0,0,0 };
         bCoeffVector = { 0,0,0 };
     }
+
+    /// <summary>
+    /// Constructor for the Biquad filter with custom coefficients and filter type.
+    /// </summary>
+    /// <param name="aCoeff">The coefficients of the denominator polynomial.</param>
+    /// <param name="bCoeff">The coefficients of the numerator polynomial.</param>
+    /// <param name="numCoeff">The number of coefficients.</param>
+    /// <param name="f">The filter type.</param>
     Biquad(vector<float> aCoeff, vector<float> bCoeff, int numCoeff, juce::String f = "direct") :
         aCoeffVector(aCoeff), bCoeffVector(bCoeff), numCoefficients(numCoeff), form(f) { }
+
+    /// <summary>
+    /// Destructor for the Biquad filter.
+    /// </summary>
     ~Biquad() {}
 
+    /// <summary>
+    /// Updates the coefficients of the Biquad filter.
+    /// </summary>
+    /// <param name="aCoeff">The new coefficients of the denominator polynomial.</param>
+    /// <param name="bCoeff">The new coefficients of the numerator polynomial.</param>
     void updateParameters(vector<float> aCoeff, vector<float> bCoeff)
     {
         // updates the biquad class a and b  parameters 
@@ -37,11 +60,14 @@ public:
             bCoeffVector[i] = bCoeff[i];
         }
     }
-    
+
+    /// <summary>
+    /// Resets the Biquad filter coefficients and state vectors to zero.
+    /// </summary>
     virtual void resetCoeff()
     {
         // flushes all the vectors values, resets to 0
-        for (int i = 0; i <aCoeffVector.size(); ++i)
+        for (int i = 0; i < aCoeffVector.size(); ++i)
         {
             aCoeffVector[i] = 0.0f;
             bCoeffVector[i] = 0.0f;
@@ -55,23 +81,33 @@ public:
         }
     }
 
-    void setDryWetGain(float dry, float processed) 
+    /// <summary>
+    /// Sets the dry/wet gain of the Biquad filter.
+    /// </summary>
+    /// <param name="dry">The dry gain.</param>
+    /// <param name="processed">The processed (wet) gain.</param>
+    void setDryWetGain(float dry, float processed)
     {
         dryCoeff = dry;
         processedCoeff = processed;
     }
 
+    /// <summary>
+    /// Processes a single audio sample through the Biquad filter.
+    /// </summary>
+    /// <param name="xn">The input audio sample.</param>
+    /// <returns>The output audio sample.</returns>
     virtual float processAudioSample(float xn)
     {
         if (form == juce::String("direct"))
         {
+            // Direct Form I filter processing
             float yn = processedCoeff * (aCoeffVector[0] * xn +
                 aCoeffVector[1] * xStateVector[0] +
                 aCoeffVector[2] * xStateVector[1] -
                 bCoeffVector[1] * yStateVector[0] -
-                bCoeffVector[2] * yStateVector[1]) + 
+                bCoeffVector[2] * yStateVector[1]) +
                 dryCoeff * xn;
-
 
             xStateVector[1] = xStateVector[0];
             xStateVector[0] = xn;
@@ -83,29 +119,35 @@ public:
         }
         else if (form == juce::String("canonical"))
         {
-            auto wn = (float) ( xn - aCoeffVector[0] * wStateVector[0] - 
-                                bCoeffVector[1] * wStateVector[1]);
-            auto ynUnprocessed = (float) ( aCoeffVector[0] * wn     + 
-                                aCoeffVector[1] * wStateVector[0]   + 
-                                aCoeffVector[2] * wStateVector[1]);
+            // Canonical Form II filter processing
+            auto wn = (float)(xn - aCoeffVector[0] * wStateVector[0] -
+                bCoeffVector[1] * wStateVector[1]);
+            auto ynUnprocessed = (float)(aCoeffVector[0] * wn +
+                aCoeffVector[1] * wStateVector[0] +
+                aCoeffVector[2] * wStateVector[1]);
 
-            
             wStateVector[1] = wStateVector[0];
             wStateVector[0] = wn;
-            return (float) (processedCoeff * ynUnprocessed +dryCoeff * xn); //yn
+            return (float)(processedCoeff * ynUnprocessed + dryCoeff * xn); //yn
 
         }
         else if (form == juce::String("None"))
         {
+            // No filtering, pass through input unchanged
             float yn = xn;
             return yn;
         }
     }
 
+    /// <summary>
+    /// Sets the type of the Biquad filter.
+    /// </summary>
+    /// <param name="type">The filter type.</param>
     void setType(juce::String type)
     {
         form = type;
     }
+
 
 private:
     // =============================================================================

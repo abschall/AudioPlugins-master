@@ -38,7 +38,7 @@ ClassicBiquadFilters_2AudioProcessorEditor::ClassicBiquadFilters_2AudioProcessor
     setSize (480, 170);
     
     // set custom LookAndFeel, which applies to Pots and Sliders Only 
-    setLookAndFeel(new abschallLookAndFeel_Sliders(juce::Colours::white, juce::Colours::black));
+    setLookAndFeel(new abschallLookAndFeel_Sliders(juce::Colours::navy.darker(20.0f), juce::Colours::dodgerblue.darker(1.0f)));
 
     cutOffAttachment.reset(new SliderAttachment(valueTreeState, "fc", cutOffPot));
     qAttachment.reset(new SliderAttachment(valueTreeState, "qfactor", qPot));
@@ -54,13 +54,13 @@ ClassicBiquadFilters_2AudioProcessorEditor::ClassicBiquadFilters_2AudioProcessor
     }
 
     // set pot titles 
-    qLabel.setText("Q Factor", juce::dontSendNotification);
+    qLabel.setText("RES", juce::dontSendNotification);
     qLabel.setJustificationType(juce::Justification::centred);
 
-    cutOffLabel.setText("Cut-off Freq", juce::dontSendNotification);
+    cutOffLabel.setText("CUT-OFF", juce::dontSendNotification);
     cutOffLabel.setJustificationType(juce::Justification::centred);
 
-    dryWetLabel.setText("Dry / Wet", juce::dontSendNotification);
+    dryWetLabel.setText("AMOUNT", juce::dontSendNotification);
     dryWetLabel.setJustificationType(juce::Justification::centred);
 
     // set pot value suffixes
@@ -84,7 +84,7 @@ ClassicBiquadFilters_2AudioProcessorEditor::~ClassicBiquadFilters_2AudioProcesso
 void ClassicBiquadFilters_2AudioProcessorEditor::paint(juce::Graphics& g)
 {
     // set background colour
-    g.setColour(juce::Colours::black);
+    g.setColour(juce::Colours::navy.darker(2.0f));
     g.fillAll();
 }
 
