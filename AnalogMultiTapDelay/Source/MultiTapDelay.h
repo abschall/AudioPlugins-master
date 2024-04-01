@@ -9,29 +9,44 @@ using std::vector;
 class FilteredNoise : private ClassicFilters
 {
 public:
+    /// <summary>
+    /// Initializes the filtered noise generator with specific filter settings.
+    /// </summary>
+    /// <param name="pSampleRate">The sample rate at which the filters will operate.</param>
     void createFilteredNoise(float pSampleRate)
     {
+        // Setting up the low-pass filter with a cutoff frequency of 890 Hz
         lopFilter.setFilterType("LPF1");
+        // Setting up the high-pass filter with a cutoff frequency of 6600 Hz
         hipFilter.setFilterType("HPF1");
 
+        // Configuring the coefficients for both filters
         lopFilter.setCoefficients(890, 1, pSampleRate);
         hipFilter.setCoefficients(6600, 1, pSampleRate);
+
+        // Setting the gain for both filters to unity gain
         lopFilter.setFilterGain(1.0f);
         hipFilter.setFilterGain(1.0f);
     }
 
+    /// <summary>
+    /// Generates a filtered noise sample.
+    /// </summary>
+    /// <returns>A float representing the filtered noise sample.</returns>
     float sound()
     {
+        // Generating a random noise sample and scaling it
         auto noiseSample = random.nextFloat() * 0.125;
+        // Processing the noise sample through the high-pass and then low-pass filter
         auto noiseSampleProcessed = level * lopFilter.processAudioSample(hipFilter.processAudioSample(noiseSample));
         return noiseSampleProcessed;
     }
-private:    
+private:
 
     ClassicFilters lopFilter;
     ClassicFilters hipFilter;
-    float level = 0.25f;
-    juce::Random random;
+    float level = 0.25f; // The level of the noise
+    juce::Random random; // Random number generator for noise generation
 };
 
 class MultiTapDelay : public CombFilterWithFB_stereo
@@ -61,6 +76,7 @@ public:
      }
     //===============================================================
     // Methods to control the taps 
+
     void instantiateTaps()
      {
          for (int tap = 0; tap < numberOfTaps; ++tap)
@@ -184,7 +200,8 @@ private:
     unsigned int numberOfTaps = 4;
 
     // Each channel requires its own signal processing  chain, one filter / channel, one saturation / channel, etc..
-    // except the noise which is jsut an added signal, input signal does not pass through it processing block
+    // except the noise which is just an added signal, input signal does not pass through it processing block
+
     ClassicFilters lopFilterL, lopFilterR;
     ClassicFilters hipFilterL, hipFilterR;
 };

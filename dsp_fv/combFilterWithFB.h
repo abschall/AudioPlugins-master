@@ -1,4 +1,3 @@
-```cpp
 #pragma once
 
 #include "circularBuffer.h"
@@ -174,16 +173,7 @@ public:
     /// </summary>
     /// <param name="inputXn"></param>
     /// <returns></returns>
-    //virtual vector<float> processAudioSample(float inputXnL,float inputXnR)
-    //{
-    //    auto
 
-    ynD = delayBufferL.readBuffer(delayTimeInSamples);
-    //    auto ynFullWet = inputXnL + feedbackGain * ynD;
-    //    delayBufferL.writeBuffer(ynFullWet);
-    //    vector<float> yn = { dry * inputXnL + wet * ynD };
-    //    return yn;
-    //}
     virtual vector<float> processAudioSample(float inputXnL, float inputXnR)
     {
         auto ynDL = delayBufferL.readBuffer(delayTimeInSamples);
@@ -250,5 +240,3 @@ protected:
 private:
 
 };
-
-```
