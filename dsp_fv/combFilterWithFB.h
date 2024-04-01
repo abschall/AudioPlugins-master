@@ -1,17 +1,18 @@
+```cpp
 #pragma once
 
 #include "circularBuffer.h"
+
 /// <summary>
-/// Comb Filter (one channel) with Feedback, inherits from the CircularBuffer class
-/// Public members are : dry, wet (mix) and feedback ((gain) ratio of output signal added to input)
-///  in the feedback path 
+/// Comb Filter (one channel) with Feedback, inherits from the CircularBuffer class.
+/// Public members are: dry, wet (mix), and feedback (gain) ratio of output signal added to input in the feedback path.
 /// </summary>
 class CombFilterWithFB : public CircularBuffer<float>
 {
 public:
     /// <summary>
-    /// sets all the comb filters parameters:  mix, feedback, delay time.
-    /// sample Rate is necessary
+    /// Sets all the comb filter's parameters: mix, feedback, delay time.
+    /// Sample Rate is necessary.
     /// </summary>
     /// <param name="pCurrentSampleRate"></param>
     /// <param name="pDelayTimeMs"></param>
@@ -19,7 +20,7 @@ public:
     /// <param name="pWet"></param>
     /// <param name="pFeedbackGain"></param>
     virtual void setParameters(double pCurrentSampleRate, double pDelayTimeMs,
-        float pDry, float pWet,float pFeedbackGain)
+        float pDry, float pWet, float pFeedbackGain)
     {
         currentSampleRate = pCurrentSampleRate;
         setDelayTimeInMs(pDelayTimeMs);
@@ -28,8 +29,8 @@ public:
     }
 
     /// <summary>
-    /// Delay time in the circular buffer is set in samples. 
-    /// This method sets the delay time in number of samples directly
+    /// Delay time in the circular buffer is set in samples.
+    /// This method sets the delay time in the number of samples directly.
     /// </summary>
     /// <param name="pDelayTimeInSamples"></param>
     virtual void setDelayTimeInSamples(unsigned int pDelayTimeInSamples)
@@ -39,8 +40,8 @@ public:
     }
 
     /// <summary>
-    /// Delay time in the circular buffer is set in samples. This function converts the delay time given in ms, to
-    /// number of samples using the sample rate.
+    /// Delay time in the circular buffer is set in samples. This function converts the delay time given in ms to
+    /// the number of samples using the sample rate.
     /// </summary>
     /// <param name="pDelayTimeInMs"></param>
     void setDelayTimeInMs(unsigned int pDelayTimeInMs)
@@ -49,7 +50,7 @@ public:
     }
 
     /// <summary>
-    /// process the audio sample, outputs the sum of input (dry) signal and processed (wet) signal
+    /// Process the audio sample, outputs the sum of the input (dry) signal and processed (wet) signal.
     /// </summary>
     /// <param name="inputXn"></param>
     /// <returns></returns>
@@ -66,13 +67,12 @@ public:
         auto ynD = delayBuffer.readBuffer(delayTimeInSamples);
         auto ynFullWet = inputXn + feedbackGain * ynD;
         delayBuffer.writeBuffer(ynFullWet);
-        float yn =  dry * inputXn + wet * ynD;
+        float yn = dry * inputXn + wet * ynD;
         return yn;
     }
 
     /// <summary>
-    /// intantiates a delay buffer. the length is calculated from the given 
-    /// time in ms and converted to number of samples
+    /// Instantiates a delay buffer. The length is calculated from the given time in ms and converted to the number of samples.
     /// </summary>
     /// <param name="pSampleRate"></param>
     /// <param name="pBufferLengthMsec"></param>
@@ -87,7 +87,7 @@ public:
     }
 
     /// <summary>
-    /// set dry and wet parameters( usually both are correlated) : dry = 1 - wet
+    /// Set dry and wet parameters (usually both are correlated): dry = 1 - wet.
     /// </summary>
     /// <param name="pDry"></param>
     /// <param name="pWet"></param>
@@ -97,7 +97,7 @@ public:
         wet = pWet;
     }
     /// <summary>
-    /// set the feedback ratio (float number between 0 and 1)
+    /// Set the feedback ratio (float number between 0 and 1).
     /// </summary>
     /// <param name="feedback"></param>
     void setFeedbackGain(float feedback)
@@ -124,16 +124,15 @@ private:
 };
 
 /// <summary>
-/// Stereo Comb Filter (R and L channels) with Feedback, inherits from the CircularBuffer class
-/// Public members are : dry, wet (mix) and feedback ((gain)ratio of output signal added to input)
-///
+/// Stereo Comb Filter (R and L channels) with Feedback, inherits from the CircularBuffer class.
+/// Public members are: dry, wet (mix), and feedback (gain) ratio of the output signal added to input.
 /// </summary>
 class CombFilterWithFB_stereo : public CircularBuffer<float>
 {
 public:
     /// <summary>
-    /// sets all the comb filters parameters:  mix, feedback, delay time.
-    /// sample Rate is necessary
+    /// Sets all the comb filters' parameters: mix, feedback, delay time.
+    /// Sample Rate is necessary.
     /// </summary>
     /// <param name="pCurrentSampleRate"></param>
     /// <param name="pDelayTimeMs"></param>
@@ -150,8 +149,8 @@ public:
     }
 
     /// <summary>
-    /// Delay time in the circular buffer is set in samples. 
-    /// This method sets the delay time in number of samples directly
+    /// Delay time in the circular buffer is set in samples.
+    /// This method sets the delay time in the number of samples directly.
     /// </summary>
     /// <param name="pDelayTimeInSamples"></param>
     virtual void setDelayTimeInSamples(unsigned int pDelayTimeInSamples)
@@ -161,8 +160,8 @@ public:
     }
 
     /// <summary>
-    /// Delay time in the circular buffer is set in samples. This function converts the delay time given in ms, to
-    /// number of samples using the sample rate.
+    /// Delay time in the circular buffer is set in samples. This function converts the delay time given in ms to
+    /// the number of samples using the sample rate.
     /// </summary>
     /// <param name="pDelayTimeInMs"></param>
     void setDelayTimeInMs(unsigned int pDelayTimeInMs)
@@ -171,13 +170,15 @@ public:
     }
 
     /// <summary>
-    /// process the audio sample, outputs the sum of input (dry) signal and processed (wet) signal
+    /// Process the audio sample, outputs the sum of the input (dry) signal and processed (wet) signal.
     /// </summary>
     /// <param name="inputXn"></param>
     /// <returns></returns>
     //virtual vector<float> processAudioSample(float inputXnL,float inputXnR)
     //{
-    //    auto ynD = delayBufferL.readBuffer(delayTimeInSamples);
+    //    auto
+
+    ynD = delayBufferL.readBuffer(delayTimeInSamples);
     //    auto ynFullWet = inputXnL + feedbackGain * ynD;
     //    delayBufferL.writeBuffer(ynFullWet);
     //    vector<float> yn = { dry * inputXnL + wet * ynD };
@@ -196,8 +197,7 @@ public:
     }
 
     /// <summary>
-    /// intantiates a delay buffer. the length is calculated from the given 
-    /// time in ms and converted to number of samples
+    /// Instantiates a delay buffer. The length is calculated from the given time in ms and converted to the number of samples.
     /// </summary>
     /// <param name="pSampleRate"></param>
     /// <param name="pBufferLengthMsec"></param>
@@ -214,7 +214,7 @@ public:
     }
 
     /// <summary>
-    /// set dry and wet parameters( usually both are correlated) : dry = 1 - wet
+    /// Set dry and wet parameters (usually both are correlated): dry = 1 - wet.
     /// </summary>
     /// <param name="pDry"></param>
     /// <param name="pWet"></param>
@@ -224,7 +224,7 @@ public:
         wet = pWet;
     }
     /// <summary>
-    /// set the feedback ratio (float number between 0 and 1)
+    /// Set the feedback ratio (float number between 0 and 1).
     /// </summary>
     /// <param name="feedback"></param>
     void setFeedbackGain(float feedback)
@@ -251,5 +251,4 @@ private:
 
 };
 
-
-
+```
