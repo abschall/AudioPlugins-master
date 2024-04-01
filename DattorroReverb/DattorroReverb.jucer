@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="Q1cyk2" name="DattorroReverb" projectType="audioplug" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
+              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
+              pluginName="Dattorro Reverb" pluginManufacturer="Abschall" pluginManufacturerCode="Absc"
+              companyName="Abschall">
   <MAINGROUP id="ZPCMaX" name="DattorroReverb">
     <GROUP id="{A9B8326B-46B8-AFC4-A7A8-D17A359C3326}" name="Source">
       <FILE id="uCoiIT" name="SimpleModulatedDelay.h" compile="0" resource="0"

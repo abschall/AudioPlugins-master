@@ -69,7 +69,7 @@ public:
 		return delayBuffer.readBuffer((unsigned int)pDelayTime_samples);
 	}
 
-protected:
+private:
 	delayLineParameters parameters;
 	double currentSampleRate;
 	CircularBuffer delayBuffer;
@@ -267,25 +267,40 @@ struct APF_modulationParameters
 	double excursion_samples;
 };
 
+/// <summary>
+/// Class for an alternate all-pass filter with modulation.
+/// </summary>
 class alternateAllPassFilter_modulated : public allPassFilter
 {
 public:
+	/// <summary>
+	/// Resets the filter with a new sample rate and initializes the LFO.
+	/// </summary>
+	/// <param name="pSampleRate">The new sample rate.</param>
 	void reset(double pSampleRate)
 	{
 		currentSampleRate = pSampleRate;
 		lfo.reset(currentSampleRate);
 	}
 
+	/// <summary>
+	/// Sets parameters for the all-pass filter and its modulation.
+	/// </summary>
+	/// <param name="pAPFparameters">Parameters for the all-pass filter.</param>
+	/// <param name="pApfModParameters">Modulation parameters for the filter.</param>
 	void setParameters(APFParameters pAPFparameters, APF_modulationParameters pApfModParameters)
 	{
 		allPassFilter::setParameters(pAPFparameters);
-		// delayTime_ms needs to account for the excursion !!!!
 		setModulationParameters(pApfModParameters);
 
-		OscillatorParameters lfoParams = { generatorWaveform::kSin,apfModParameters.LFORate_Hz };
+		OscillatorParameters lfoParams = { generatorWaveform::kSin, apfModParameters.LFORate_Hz };
 		lfo.setParameters(lfoParams);
 	}
 
+	/// <summary>
+	/// Creates a delay buffer based on the sample rate and modulation parameters.
+	/// </summary>
+	/// <param name="pSampleRate">The sample rate.</param>
 	void createDelayBuffer(double pSampleRate) override
 	{
 		currentSampleRate = pSampleRate;
@@ -297,23 +312,26 @@ public:
 		delayBuffer.flush();
 	}
 
+	/// <summary>
+	/// Processes an audio sample, applying modulation if enabled.
+	/// </summary>
+	/// <param name="inputXn">The input audio sample to process.</param>
+	/// <returns>The processed audio sample.</returns>
 	float processAudioSample(float inputXn) override
 	{
 		if (parameters.enableAPF == true)
 		{
 			double modValue = 0.0;
-
-			if(apfModParameters.enableLFO == true)
-			{ 
+			if (apfModParameters.enableLFO == true)
+			{
 				auto outLfo = lfo.renderAudioOuput();
 				auto modValue = outLfo.normalOutput * apfModParameters.excursion_samples;
 			}
 
-			auto ynD = delayBuffer.readBuffer(parameters.delayTime_samples + modValue,true);
+			auto ynD = delayBuffer.readBuffer(parameters.delayTime_samples + modValue, true);
 			auto temp = inputXn + parameters.feedbackGain * ynD;
 			delayBuffer.writeBuffer(temp);
 			auto yn = -parameters.feedbackGain * temp + ynD;
-
 			return yn;
 		}
 		else
@@ -323,16 +341,18 @@ public:
 	}
 
 protected:
-	APF_modulationParameters apfModParameters;
-	LFO lfo;
-
-private:
+	/// <summary>
+	/// Sets the modulation parameters for the filter.
+	/// </summary>
+	/// <param name="pApfModParameters">Modulation parameters to set.</param>
 	void setModulationParameters(APF_modulationParameters pApfModParameters)
 	{
-		// to be called somewhere !!!
 		apfModParameters.enableLFO = pApfModParameters.enableLFO;
 		apfModParameters.excursion_ms = pApfModParameters.excursion_ms;
 		apfModParameters.LFORate_Hz = pApfModParameters.LFORate_Hz;
 	}
-};
 
+private:
+	APF_modulationParameters apfModParameters; // Modulation parameters
+	LFO lfo; // Low-frequency oscillator for modulation
+};

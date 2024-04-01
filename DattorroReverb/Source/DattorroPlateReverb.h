@@ -2,6 +2,9 @@
 #include "../../dsp_fv/APFstructures.h"
 #include "../../dsp_fv/classicFilters.h"
 
+/// <summary>
+/// reverb Control parameters, linked to sliders
+/// </summary>
 struct ReverbControlParameters
 {
 	double mix;
@@ -19,6 +22,9 @@ struct ReverbControlParameters
 	
 };
 
+/// <summary>
+/// delaLines, APF, modulated APF and filter parameters 
+/// </summary>
 struct ReverbStructureParameters
 {
 	// predelay
@@ -51,6 +57,10 @@ struct ReverbStructureParameters
 class DattorroPlateReverb
 {
 public:
+	/// <summary>
+	/// set internal delayLines and filter parameters
+	/// </summary>
+	/// <param name="pControlParameters"></param>
 	void setParameters(ReverbControlParameters pControlParameters)
 	{
 		controlParameters.predelay = pControlParameters.predelay;
@@ -65,9 +75,13 @@ public:
 		controlParameters.damping = pControlParameters.damping;
 		controlParameters.bandwidth = pControlParameters.bandwidth;
 
-		// add additionnal control parameters here 
+		//... add additionnal control parameters here 
 	}
 
+	/// <summary>
+	/// updating reverb parameters, by taking the values read from the control (sliders)
+	/// </summary>
+	/// <param name="pControlParameters"></param>
 	void updateParameters(ReverbControlParameters pControlParameters)
 	{
 		modulatedAPF1.reset(sampleRate);
@@ -113,7 +127,7 @@ public:
 		modulatedAPF1.reset(sampleRate); 
 		modulatedAPF2.reset(sampleRate);
 
-		// set parameters
+		// DelayLines and APF structures :  set parameters
 		predelayLine.setParameters(structureParameters.predelayParam);
 		modulatedAPF1.setParameters(structureParameters.modulatedAPF1Param, structureParameters.modulatedAPF1_lfoParam);
 		modulatedAPF2.setParameters(structureParameters.modulatedAPF2Param, structureParameters.modulatedAPF2_lfoParam);
@@ -173,10 +187,6 @@ public:
 		output = inputDiffuser3.processAudioSample(output);
 		output = inputDiffuser4.processAudioSample(output);
 
-
-		//delay needs to be read !
-		//tank1_wet = delayLine2.readDelayLine(4640);
-		//tank2_wet = delayLine4.readDelayLine(5503);
 		float tank1 = output + tank2_wet;
 		float tank2 = output + tank1_wet;
 
@@ -203,8 +213,13 @@ public:
 	}
 
 private:
+	/// <summary>
+	/// reading from delayLines and creating the output signals 
+	/// </summary>
+	/// <returns></returns>
 	vector<float> readOutputTaps()
 	{
+		// left channel
 		float yL = delayLine1.readDelayLine(394);
 		yL += delayLine1.readDelayLine(4401);
 		yL -= alternateAPF5.readDelayLine(2831);
@@ -213,6 +228,7 @@ private:
 		yL -= alternateAPF6.readDelayLine(277);
 		yL -= delayLine4.readDelayLine(1578);
 
+		//right channel
 		float yR = delayLine3.readDelayLine(522);
 		yR += delayLine3.readDelayLine(5368);
 		yR -= alternateAPF6.readDelayLine(1817);
