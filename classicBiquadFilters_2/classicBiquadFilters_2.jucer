@@ -4,7 +4,8 @@
               useAppConfig="0" addUsingNamespaceToJuceHeader="0" displaySplashScreen="1"
               jucerFormatVersion="1" pluginFormats="buildStandalone,buildVST3"
               pluginVST3Category="Filter" pluginCharacteristicsValue="pluginAAXDisableMultiMono,pluginIsSynth"
-              companyName="Abschall">
+              companyName="Abschall" pluginName="Classic Biquad Filters" pluginDesc="2nd order biquad filter structures ( LPF1, HPF1, LPF2, HPF2)"
+              pluginManufacturer="Abschall" pluginManufacturerCode="Absc">
   <MAINGROUP id="tqJOLD" name="classicBiquadFilters_2">
     <GROUP id="{67769B0A-82AA-789D-91A6-1AD926A84DDD}" name="font">
       <FILE id="P0a30a" name="ArialCE.cpp" compile="1" resource="0" file="Source/font/ArialCE.cpp"/>
