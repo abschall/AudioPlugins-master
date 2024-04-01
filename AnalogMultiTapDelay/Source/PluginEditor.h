@@ -84,20 +84,20 @@ private:
     std::unique_ptr<SliderAttachment> lowPassAttachement;
     std::unique_ptr<SliderAttachment> highPassAttachement;
 
-    juce::Label delayLabel;
-    juce::Label timeRatioLabel;
-    juce::Label tapLevel_1Label;
-    juce::Label tapLevel_2Label;
-    juce::Label tapLevel_3Label;
-    juce::Label tapLevel_4Label;
-    juce::Label mixLabel;
-    juce::Label widthLabel;
-    juce::Label inputLevelLabel;
-    juce::Label feedbackLabel;
-    juce::Label noiseLevelLabel;
-    juce::Label saturationLabel;
-    juce::Label lowPassLabel;
-    juce::Label highPassLabel;
+    titleLabel delayLabel;
+    titleLabel timeRatioLabel;
+    titleLabel tapLevel_1Label;
+    titleLabel tapLevel_2Label;
+    titleLabel tapLevel_3Label;
+    titleLabel tapLevel_4Label;
+    titleLabel mixLabel;
+    titleLabel widthLabel;
+    titleLabel inputLevelLabel;
+    titleLabel feedbackLabel;
+    titleLabel noiseLevelLabel;
+    titleLabel saturationLabel;
+    titleLabel lowPassLabel;
+    titleLabel highPassLabel;
 
     // Sizes
     int wPot = 150, heightPot = 120;

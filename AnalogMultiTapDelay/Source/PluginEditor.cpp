@@ -14,8 +14,8 @@
 AnalogMultiTapDelayAudioProcessorEditor::AnalogMultiTapDelayAudioProcessorEditor (AnalogMultiTapDelayAudioProcessor& p, juce::AudioProcessorValueTreeState& vts)
     : AudioProcessorEditor (&p), audioProcessor (p), valueTreeState(vts)
 {
-    // Make sure that before the constructor has finished, you've set the
-    // editor's size to whatever you need it to be.
+
+
    setSize (800, 360);
    setLookAndFeel(new abschallLookAndFeel_Sliders(juce::Colours::limegreen,juce::Colours::green));
    //==============================================================================
