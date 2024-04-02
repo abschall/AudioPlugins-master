@@ -1,6 +1,9 @@
 #pragma once
 #include "../../dsp_fv/APFstructures.h"
 
+/**********************************************************************
+This is just a test program for the modulated delay algorithm
+**********************************************************************/
 struct DelayControlParameters
 {
 	double mix;
@@ -18,7 +21,7 @@ class SimpleModulatedDelay
 {
 public:
 	/// <summary>
-	/// sets the delay's CONTROL parameters (outside controls)
+	/// Sets the delay's CONTROL parameters (outside controls)
 	/// </summary>
 	/// <param name="pControlParameters"></param>
 	void setParameters(DelayControlParameters pControlParameters)
@@ -28,7 +31,7 @@ public:
 	}
 
 	/// <summary>
-	/// sets the inner (sub) components to a predefined state
+	/// Sets the inner (sub) components to a predefined state
 	/// </summary>
 	/// <param name="pSampleRate"></param>
 	void reset(double pSampleRate)
@@ -41,7 +44,7 @@ public:
 
 	}
 	/// <summary>
-	/// processes the incoming audio sample by the modulated Delay algorithm
+	/// Processes the incoming audio sample by the modulated Delay algorithm
 	/// </summary>
 	/// <param name="inputXn"></param>
 	/// <returns></returns>

@@ -34,9 +34,7 @@ public:
         return fractional_X * y2 + (1.0 - fractional_X) * y1;
     }
 
-    /// <summary>
-    /// Constructor.
-    /// </summary>
+
     CircularBuffer()
     {
 
@@ -83,6 +81,8 @@ public:
 
     /// <summary>
     /// Flushes the circular buffer by writing zeros to all elements.
+    /// This is necessary to avoid crackling at plugin startup. 
+    /// Should be called at prepareToPlay()
     /// </summary>
     void flush()
     {
@@ -112,9 +112,8 @@ public:
     }
 
     std::unique_ptr<T[]> buffer; // Declaring an array of type T
-private:
-    // Private members
-    unsigned int writeIndex, readIndex, bufferLength;
 
+private:
+    unsigned int writeIndex, readIndex, bufferLength;
     unsigned int wrapMask;
 };

@@ -41,9 +41,7 @@ public:
     Biquad(vector<float> aCoeff, vector<float> bCoeff, int numCoeff, juce::String f = "direct") :
         aCoeffVector(aCoeff), bCoeffVector(bCoeff), numCoefficients(numCoeff), form(f) { }
 
-    /// <summary>
-    /// Destructor for the Biquad filter.
-    /// </summary>
+
     ~Biquad() {}
 
     /// <summary>
@@ -148,11 +146,9 @@ public:
         form = type;
     }
 
-
 private:
-    // =============================================================================
-    // Private members 
 
+    // Private members 
     int numCoefficients;
     vector<float> aCoeffVector;
     vector<float> bCoeffVector;
@@ -278,7 +274,7 @@ public:
     }
 
     /// <summary>
-    /// sets te Dry and Wet parameters of the underlying biquadStruct member,
+    /// Sets te Dry and Wet parameters of the underlying biquadStruct member,
     /// Wet (processed) = (float) Gain, Dry  = 1 - (float) Gain
     /// </summary>
     /// <param name="gain"></param>
@@ -287,7 +283,7 @@ public:
         biquadStruct.setDryWetGain(1.0f - gain, gain);
     }
     /// <summary>
-    /// sets the filter type. Supported are :
+    /// Sets the filter type. Supported are :
     /// LPF1, LPF2, HPF1, HPF 2. more to come...
     /// </summary>
     /// <param name="type"></param>
@@ -296,8 +292,7 @@ public:
         filterType = type;
     }
     /// <summary>
-    /// function used to process the incoming sample x(n),
-    ///  override the biquadStruct::processAudioSample() method
+    /// Processes the incoming sample x(n), overrides the biquadStruct::processAudioSample() method
     /// </summary>
     /// <param name="xn"></param>
     /// <returns></returns>

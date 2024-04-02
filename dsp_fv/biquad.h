@@ -129,7 +129,7 @@ public:
    /// <summary>
    /// Sets the form/type of the biquad filter.
    /// </summary>
-   /// <param name="type">The form/type of the filter (e.g., "direct", "canonical").</param>
+   /// <param name="type">The form/type of the biquad filter  topology (e.g., "direct", "canonical").</param>
     void setType(juce::String type) {
         form = type;
     }

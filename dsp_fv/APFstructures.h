@@ -10,13 +10,13 @@ struct delayLineParameters
 };
 
 /// <summary>
-/// simple delay Line, Z^(-D) 
+/// Simple delay Line, Z^(-D) 
 /// </summary>
 class delayLine : private CircularBuffer<float>
 {
 public:
 	/// <summary>
-/// sets the delay time in ms and enables/ disables  the comb filter 
+/// Sets the delay time in ms and enables/ disables  the comb filter 
 /// </summary>
 /// <param name="pParameters"></param>
 	void setParameters(delayLineParameters pParameters)
@@ -26,7 +26,7 @@ public:
 		parameters.delayTime_samples = (unsigned int) parameters.delayTime_ms * samplesPerMsec + 1;
 	}
 	/// <summary>
-	/// creates the Delay Line's Delay Buffer (bufferLength = delay time),
+	/// Creates the Delay Line's Delay Buffer (bufferLength = delay time),
 	/// also sets the delay time in number of samples according to the sample rate 
 	/// </summary>
 	/// <param name="pSampleRate"></param>
@@ -37,10 +37,12 @@ public:
 		auto bufferLength = (unsigned int)(parameters.delayTime_ms * samplesPerMsec) + 1;
 		parameters.delayTime_samples = bufferLength;
 		delayBuffer.createBuffer(bufferLength);
+
+		// flushes the delayBuffer before any read or write.
 		delayBuffer.flush();
 	}
 	/// <summary>
-	/// processes the incoming audio sample, output is full wet 
+	/// Processes the incoming audio sample, output is full wet 
 	/// </summary>
 	/// <param name="inputXn"></param>
 	/// <returns></returns>
@@ -59,7 +61,7 @@ public:
 		}
 	}
 	/// <summary>
-	/// reads the delay Line at a specific sample time. Delay TIme should be given in samples,
+	/// Reads the delay Line at a specific sample time. Delay TIme should be given in samples,
 	/// in order to avoid superfluous ms to sample conversion 
 	/// </summary>
 	/// <param name="pDelayTime_samples"></param>
@@ -86,7 +88,7 @@ struct CombFilterParameters
 };
 
 /// <summary>
-/// simple recirculating Comb Filter class, the comb filters have fixed delay times and buffer length
+/// Simple recirculating Comb Filter class, the comb filters have fixed delay times and buffer length
 /// !!! This should be modified to a common max buffer length ! The class as is (3/08/2024) does not 
 /// lend itself to delay time modulation 
 /// </summary>
@@ -173,7 +175,7 @@ class allPassFilter : private CircularBuffer<float>
 {
 public:
 	/// <summary>
-	/// sets the delay time in ms, feedback loop gain, and enables/ disables  the comb filter 
+	/// Sets the delay time in ms, feedback loop gain, and enables/ disables  the comb filter 
 	/// </summary>
 	/// <param name="pParameters"></param>
 	void setParameters(APFParameters pParameters)
@@ -184,7 +186,7 @@ public:
 		parameters.delayTime_samples = (unsigned int)parameters.delayTime_ms * samplesPerMsec + 1;
 	}
 	/// <summary>
-	/// creates the Comb Filter's Delay Buffer (bufferLength = delay time),
+	/// Creates the delay buffer (bufferLength = delay time),
 	/// also sets the delay time in number of samples according to the sample rate 
 	/// </summary>
 	/// <param name="pSampleRate"></param>
@@ -197,8 +199,9 @@ public:
 		delayBuffer.createBuffer(bufferLength);
 		delayBuffer.flush();
 	}
+
 	/// <summary>
-	/// reads the delay Line at a specific sample time. Delay TIme should be given in samples,
+	/// reads the delay Line at a specific sample time. Delay Time should be given in samples,
 	/// in order to avoid superfluous ms to sample conversion 
 	/// </summary>
 	/// <param name="pDelayTime_samples"></param>
@@ -207,8 +210,9 @@ public:
 	{
 		return delayBuffer.readBuffer((unsigned int)pDelayTime_samples);
 	}
+
 	/// <summary>
-	/// processes the incoming audio sample, output is full wet 
+	/// Processes the incoming audio sample, output is full wet 
 	/// </summary>
 	/// <param name="inputXn"></param>
 	/// <returns></returns>
@@ -236,11 +240,16 @@ protected:
 };
 
 /// <summary>
-/// lattice APF structure / alternate APF as described by Jon Dattorro and Will Pirkle 
+/// Lattice APF structure / alternate APF as described by Jon Dattorro and Will Pirkle 
 /// </summary>
 class alternateAllPassFilter : public allPassFilter
 {
 public:
+	/// <summary>
+	/// Process the incoming Audio sample
+	/// </summary>
+	/// <param name="inputXn"></param>
+	/// <returns> The processed Audio sample</returns>
 	float processAudioSample(float inputXn) override
 	{
 		if (parameters.enableAPF == true)
@@ -259,6 +268,9 @@ public:
 	}
 };
 
+/// <summary>
+/// parameters of the modulation LFO
+/// </summary>
 struct APF_modulationParameters
 {
 	double LFORate_Hz = 0.0;
@@ -305,10 +317,13 @@ public:
 	{
 		currentSampleRate = pSampleRate;
 		samplesPerMsec = currentSampleRate / 1000.0;
+		
+		// Buffer length needs to take the excursion time (in samples) into account.
 		auto bufferLength = (unsigned int)((parameters.delayTime_ms + apfModParameters.excursion_ms) * samplesPerMsec + 1);
 		parameters.delayTime_samples = parameters.delayTime_ms * samplesPerMsec;
 		apfModParameters.excursion_samples = apfModParameters.excursion_ms * samplesPerMsec;
 		delayBuffer.createBuffer(bufferLength);
+		//flush the delay line
 		delayBuffer.flush();
 	}
 

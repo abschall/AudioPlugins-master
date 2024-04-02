@@ -48,7 +48,9 @@ private:
     float level = 0.25f; // The level of the noise
     juce::Random random; // Random number generator for noise generation
 };
-
+/// <summary>
+/// The MultiTapDelay algorithm
+/// </summary>
 class MultiTapDelay : public CombFilterWithFB_stereo
 {
 public:
@@ -77,6 +79,9 @@ public:
     //===============================================================
     // Methods to control the taps 
 
+    /// <summary>
+    /// Instantitates the Taps, called at prepareToPlay()
+    /// </summary>
     void instantiateTaps()
      {
          for (int tap = 0; tap < numberOfTaps; ++tap)
@@ -96,6 +101,9 @@ public:
          }
      }
 
+    /// <summary>
+    /// Sets initial delay times
+    /// </summary>
     void setTapsDelayTime()
     {
         for (unsigned int tap = 0; tap < numberOfTaps; ++tap)
@@ -113,7 +121,10 @@ public:
 
         }
     }
-
+    /// <summary>
+    /// Sets initial tap Levels
+    /// </summary>
+    /// <param name="pTapLevels"></param>
     void setTapLevels(vector<float> pTapLevels)
     {
         for (auto tap = 0; tap < numberOfTaps; ++tap)
@@ -157,7 +168,12 @@ public:
         hipFilterR.setCoefficients(highpassFrequency, 1, currentSampleRate);
     }
 
-
+    /// <summary>
+    /// Processes left and right input samples 
+    /// </summary>
+    /// <param name="inputXnL"></param>
+    /// <param name="inputXnR"></param>
+    /// <returns> returns the output sample</returns>
     vector<float> processAudioSample(float inputXnL, float inputXnR) override
     {
         auto ynDL = 0.0f, ynDR = 0.0f, sum = 0.0f;
@@ -179,11 +195,15 @@ public:
         ynDL = ynDL + noise;
         ynDR = ynDR + noise;
 
-
+        // passes the audio through the filters 
         auto ynFullWetL = hipFilterL.processAudioSample(lopFilterL.processAudioSample(inputXnL + feedbackGain * ynDL));
         auto ynFullWetR = hipFilterL.processAudioSample(lopFilterR.processAudioSample(inputXnR + feedbackGain * ynDR));
+
+        // writes samples to delay buffers
         delayBufferL.writeBuffer(ynFullWetR);
         delayBufferR.writeBuffer(ynFullWetL);
+
+        // generates output samples
         vector<float> yn = { stereoWidth * (dry * inputXnL + wet * ynDL) + (1 - stereoWidth) * (dry * inputXnR + wet * ynDR),
                              stereoWidth * (dry * inputXnR + wet * ynDR) + (1 - stereoWidth) * (dry * inputXnL + wet * ynDL) };
         return yn;

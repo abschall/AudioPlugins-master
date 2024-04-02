@@ -42,7 +42,6 @@ inline double parabolicSine(double x) {
 enum class generatorWaveform { kTriangle, kSin, kSaw };
 
 /// Represents parameters for an oscillator.
-
 struct OscillatorParameters {
     generatorWaveform waveform; ///< Waveform type.
     double oscillatorFrequency_Hz; ///< Oscillator frequency in Hz.
@@ -50,7 +49,7 @@ struct OscillatorParameters {
 
 
 /// <summary>
-/// Represents a phasor for generating oscillations.
+/// Represents a phasor, based upon the Pure Data phasor~ object 
 /// </summary>
 class Phasor
 {
@@ -130,7 +129,7 @@ private:
 };
 
 /// <summary>
-/// different LFO signal outputs
+/// Different LFO signal outputs
 /// </summary>
 struct LFOSignalOutput
 {
@@ -141,7 +140,7 @@ struct LFOSignalOutput
 };
 
 /// <summary>
-/// Represents a low-frequency oscillator (LFO) using a phasor.
+/// LFO class inheriting from the Phasor  class
 /// </summary>
 class LFO : private Phasor
 {

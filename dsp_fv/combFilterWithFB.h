@@ -86,7 +86,7 @@ public:
     }
 
     /// <summary>
-    /// Set dry and wet parameters (usually both are correlated): dry = 1 - wet.
+    /// Set dry and wet parameters, both are correlated: dry = 1 - wet.
     /// </summary>
     /// <param name="pDry"></param>
     /// <param name="pWet"></param>
@@ -110,11 +110,10 @@ public:
     float feedbackGain;
 
 protected:
+
     double bufferLengthMsec;
     unsigned int bufferLength; // in samples
     unsigned int delayTimeInSamples;
-    //unsigned int delayTimeInSamples;
-
     CircularBuffer delayBuffer;
     double currentSampleRate;
     double samplePerMsec;
@@ -169,11 +168,10 @@ public:
     }
 
     /// <summary>
-    /// Process the audio sample, outputs the sum of the input (dry) signal and processed (wet) signal.
+    /// Process the L and R audio samples, outputs the sum of the input (dry) signal and processed (wet) signal.
     /// </summary>
     /// <param name="inputXn"></param>
     /// <returns></returns>
-
     virtual vector<float> processAudioSample(float inputXnL, float inputXnR)
     {
         auto ynDL = delayBufferL.readBuffer(delayTimeInSamples);
@@ -204,7 +202,7 @@ public:
     }
 
     /// <summary>
-    /// Set dry and wet parameters (usually both are correlated): dry = 1 - wet.
+    /// Set dry and wet parameters, both are correlated: dry = 1 - wet.
     /// </summary>
     /// <param name="pDry"></param>
     /// <param name="pWet"></param>
@@ -231,8 +229,6 @@ protected:
     double bufferLengthMsec;
     unsigned int bufferLength; // in samples
     unsigned int delayTimeInSamples;
-    //unsigned int delayTimeInSamples;
-
     CircularBuffer delayBufferR;
     CircularBuffer delayBufferL;
     double currentSampleRate;

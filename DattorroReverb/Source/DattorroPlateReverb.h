@@ -2,6 +2,7 @@
 #include "../../dsp_fv/APFstructures.h"
 #include "../../dsp_fv/classicFilters.h"
 
+
 /// <summary>
 /// reverb Control parameters, linked to sliders
 /// </summary>
@@ -54,6 +55,9 @@ struct ReverbStructureParameters
 
 };
 
+/// <summary>
+/// The Jon Dattorro Reverb algorithm
+/// </summary>
 class DattorroPlateReverb
 {
 public:
@@ -79,7 +83,7 @@ public:
 	}
 
 	/// <summary>
-	/// updating reverb parameters, by taking the values read from the control (sliders)
+	/// Updates reverb parameters, by taking the values read from the control (sliders)
 	/// </summary>
 	/// <param name="pControlParameters"></param>
 	void updateParameters(ReverbControlParameters pControlParameters)
@@ -119,6 +123,10 @@ public:
 		dampingLPF2.setCoefficients(controlParameters.damping, 1.0, sampleRate);
 	}
 
+	/// <summary>
+	/// Resets reverb parameters 
+	/// </summary>
+	/// <param name="pSampleRate"></param>
 	void reset(double pSampleRate)
 	{
 		sampleRate = pSampleRate;
@@ -170,7 +178,11 @@ public:
 		alternateAPF5.createDelayBuffer(sampleRate);
 		alternateAPF6.createDelayBuffer(sampleRate);
 	}
-
+	/// <summary>
+	/// Process the incoming  L and R input signals
+	/// </summary>
+	/// <param name="inputXn"></param>
+	/// <returns> returns the processed audio samples </returns>
 	vector<float> processAudioSample(vector<float> inputXn)
 	{
 
@@ -214,7 +226,7 @@ public:
 
 private:
 	/// <summary>
-	/// reading from delayLines and creating the output signals 
+	/// Reads from delayLines and creating the output signals 
 	/// </summary>
 	/// <returns></returns>
 	vector<float> readOutputTaps()
@@ -228,7 +240,7 @@ private:
 		yL -= alternateAPF6.readDelayLine(277);
 		yL -= delayLine4.readDelayLine(1578);
 
-		//right channel
+		// right channel
 		float yR = delayLine3.readDelayLine(522);
 		yR += delayLine3.readDelayLine(5368);
 		yR -= alternateAPF6.readDelayLine(1817);

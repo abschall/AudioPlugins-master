@@ -30,6 +30,7 @@ public:
     {
         biquadStruct.resetCoeff();
     }
+
     /// <summary>
     /// sets the coefficients of the second order Biquad biquadSruct member, 
     /// using the desired corner Frequency and Quality factor.
@@ -126,8 +127,9 @@ public:
     {
         biquadStruct.setDryWetGain(1.0f - gain, gain);
     }
+
     /// <summary>
-    /// sets the filter type. Supported are :
+    /// Sets the filter type. Supported are :
     /// LPF1, LPF2, HPF1, HPF 2. more to come...
     /// </summary>
     /// <param name="type"></param>
@@ -137,11 +139,11 @@ public:
     }
 
     /// <summary>
-    /// function used to process the incoming sample x(n),
+    /// Processes the incoming sample x(n),
     ///  override the biquadStruct::processAudioSample() method
     /// </summary>
     /// <param name="xn"></param>
-    /// <returns></returns>
+    /// <returns> returns the output sample</returns>
     float processAudioSample(float xn) override
     {
         auto yn = (float)biquadStruct.processAudioSample(xn);
