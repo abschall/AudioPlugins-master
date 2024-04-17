@@ -1,7 +1,9 @@
 #pragma once
 
 #include "circularBuffer.h"
-#include "lfo.h"		
+#include "lfo.h"	
+#include "biquad.h"
+
 struct delayLineParameters
 {
 	double delayTime_ms = 0.0;
@@ -158,6 +160,91 @@ protected:
 	double currentSampleRate;
 	double samplesPerMsec;
 	CircularBuffer delayBuffer;
+};
+
+struct FCombFilterParameters
+{
+	double delayTime_ms = 0.0;
+	double g = 0.0;
+	bool enableComb = false;
+
+	double delayTime_samples = 0.0;
+	double g1 = 0.0;
+};
+
+class FCombFilter : private CircularBuffer<float>
+{
+public:
+	/// <summary>
+	/// sets the delay time in ms, feedback loop gain, and enables/ disables  the comb filter 
+	/// </summary>
+	/// <param name="pParameters"></param>
+	void setParameters(FCombFilterParameters pParameters)
+	{
+		parameters.delayTime_ms = pParameters.delayTime_ms;
+		parameters.g = pParameters.g; //damping parameter
+		parameters.g1 = sqrt(parameters.delayTime_ms / 250); // low pass filter coefficient 
+		parameters.enableComb = pParameters.enableComb;
+		parameters.delayTime_samples = (unsigned int)parameters.delayTime_ms * samplesPerMsec + 1;
+		rpole.setType("direct");
+
+		rpole.updateParameters({ 1.0, 0, 0 }, {0, (-1) * (float) parameters.g1, 0}); // LowPass 1-pole filter 
+	}
+
+	/// <summary>
+	/// creates the Comb Filter's Delay Buffer (bufferLength = delay time),
+	/// also sets the delay time in number of samples according to the sample rate 
+	/// </summary>
+	/// <param name="pSampleRate"></param>
+	void createDelayBuffer(double pSampleRate)
+	{
+		currentSampleRate = pSampleRate;
+		samplesPerMsec = currentSampleRate / 1000.0;
+		auto bufferLength = (unsigned int)(parameters.delayTime_ms * samplesPerMsec) + 1;
+		parameters.delayTime_samples = (unsigned int)parameters.delayTime_ms * samplesPerMsec + 1;
+		delayBuffer.createBuffer(bufferLength);
+		delayBuffer.flush();
+	}
+
+	/// <summary>
+	/// reads the delay Line at a specific sample time. Delay TIme should be given in samples,
+	/// in order to avoid superfluous ms to sample conversion 
+	/// </summary>
+	/// <param name="pDelayTime_samples"></param>
+	/// <returns></returns>
+	float readDelayLine(unsigned int pDelayTime_samples)
+	{
+		return delayBuffer.readBuffer((unsigned int)pDelayTime_samples);
+	}
+	/// <summary>
+	/// processes the incoming audio sample, output is full wet 
+	/// </summary>
+	/// <param name="inputXn"></param>
+	/// <returns></returns>
+	virtual float processAudioSample(float inputXn)
+	{
+		// full wet signal processing 
+
+		if (parameters.enableComb == true)
+		{
+			auto ynD = delayBuffer.readBuffer(parameters.delayTime_samples, true);
+			ynD = rpole.processAudioSample(ynD);
+			auto g2 = (1 - parameters.g1) * parameters.g ;// (1 - g1) * g // eventually to be updated quickliy somewhere
+			auto ynFullWet = inputXn + g2 * ynD;
+			delayBuffer.writeBuffer(ynFullWet);
+
+			return ynD;
+		}
+		else
+			return inputXn;
+	}
+
+protected:
+	FCombFilterParameters parameters;
+	double currentSampleRate;
+	double samplesPerMsec;
+	CircularBuffer delayBuffer;
+	Biquad rpole;
 };
 
 struct APFParameters
