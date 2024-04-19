@@ -51,6 +51,7 @@ public:
         wrapMask = bufferLength - 1;
         // Create a new buffer
         buffer.reset(new T[bufferLength]);
+        flush();
     }
 
     /// <summary>
@@ -111,7 +112,7 @@ public:
         return doLinearInterpolation(y1, y2, fraction);
     }
 
-    std::unique_ptr<T[]> buffer; // Declaring an array of type T
+    std::shared_ptr<T[]> buffer; // Declaring an array of type T
 
 private:
     unsigned int writeIndex, readIndex, bufferLength;

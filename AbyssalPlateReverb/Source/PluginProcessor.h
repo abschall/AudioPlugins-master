@@ -61,7 +61,14 @@ private:
     // Effect control parameter
     std::atomic<float>* mix = nullptr;
     std::atomic<float>* absorption = nullptr;
-    EarlyReflexions reverbAlgorithm;
+    std::atomic<float>* earlyReflexions = nullptr;
+    std::atomic<float>* decay = nullptr;
+    std::atomic<float>* damping = nullptr;
+    std::atomic<float>* modRate = nullptr;
+    std::atomic<float>* modDepth = nullptr;
+
+    // Reverb algorithm
+    AbyssalPlateReverb reverbAlgorithm;
     ReverbControlParameters controlParameters;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AbyssalPlateReverbAudioProcessor)
 };

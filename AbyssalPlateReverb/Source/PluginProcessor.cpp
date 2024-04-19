@@ -25,7 +25,17 @@ AbyssalPlateReverbAudioProcessor::AbyssalPlateReverbAudioProcessor()
             std::make_unique<juce::AudioParameterFloat>(
             "mix", "Mix", juce::NormalisableRange<float>(0.0f, 1.0f),0.0f),
             std::make_unique<juce::AudioParameterFloat>(
-            "absorption", "Absorption", juce::NormalisableRange<float>(0.0f, 20000.0f),20000.0f)
+            "absorption", "Absorption", juce::NormalisableRange<float>(0.0f, 20000.0f),20000.0f),
+            std::make_unique<juce::AudioParameterFloat>(
+            "earlyReflexions", "Early Reflexions Amount", juce::NormalisableRange<float>(0.0f, 1.0f),0.0f),
+            std::make_unique<juce::AudioParameterFloat>(
+            "decay", "Decay", juce::NormalisableRange<float>(0.0f, 1.0f),0.0f),
+            std::make_unique<juce::AudioParameterFloat>(
+            "damping", "Damping", juce::NormalisableRange<float>(0.0f, 0.9999f),0.5f),
+            std::make_unique<juce::AudioParameterFloat>(
+            "modRate", "Modulation Rate", juce::NormalisableRange<float>(0.01f, 10.0f),1.0f),
+            std::make_unique<juce::AudioParameterFloat>(
+            "modDepth", "Modulation Depth", juce::NormalisableRange<float>(0.0f, 1.0),0.0f)
         }
     )
 #endif
@@ -40,9 +50,22 @@ AbyssalPlateReverbAudioProcessor::~AbyssalPlateReverbAudioProcessor()
 void AbyssalPlateReverbAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     currentSampleRate = sampleRate;
+
     absorption = parameters.getRawParameterValue("absorption");
+    damping = parameters.getRawParameterValue("damping");
+    decay = parameters.getRawParameterValue("decay");
+    earlyReflexions = parameters.getRawParameterValue("earlyReflexions");
+    mix = parameters.getRawParameterValue("mix");
+    modDepth = parameters.getRawParameterValue("modDepth");
+    modRate = parameters.getRawParameterValue("modRate");
 
     controlParameters.absorption = absorption->load();
+    controlParameters.damping = damping->load();
+    controlParameters.decay = decay->load();
+    controlParameters.earlyReflexions = earlyReflexions->load();
+    controlParameters.mix = mix->load();
+    controlParameters.modDepth = modDepth->load();
+    controlParameters.modRate = modRate->load();
 
     reverbAlgorithm.reset(sampleRate);
     reverbAlgorithm.setParameters(controlParameters);
@@ -90,11 +113,17 @@ void AbyssalPlateReverbAudioProcessor::processBlock(juce::AudioBuffer<float>& bu
 
     // get plugin parameters values
     controlParameters.absorption = absorption->load();
+    controlParameters.damping = damping->load();
+    controlParameters.decay = decay->load();
+    controlParameters.earlyReflexions = earlyReflexions->load();
+    controlParameters.mix = mix->load();
+    controlParameters.modDepth = modDepth->load();
+    controlParameters.modRate = modRate->load();
 
     // update Reverb Algorithm parameters
     reverbAlgorithm.updateParameters(controlParameters);
 
-    vector<float> input = { 0.0,0.0 };
+    vector<float> input = { 0.0, 0.0};
 
     for (auto sample = 0;sample < buffer.getNumSamples(); ++sample)
     {

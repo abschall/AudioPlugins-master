@@ -14,10 +14,13 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="hEvUoE" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
+    <FILE id="t2yDOi" name="AbyssalPlateReverb.h" compile="0" resource="0"
+          file="Source/AbyssalPlateReverb.h"/>
     <FILE id="Kt8aTZ" name="APFstructures.h" compile="0" resource="0" file="../dsp_fv/APFstructures.h"/>
     <FILE id="c1Y7Rj" name="circularBuffer.h" compile="0" resource="0"
           file="../dsp_fv/circularBuffer.h"/>
     <FILE id="lv7Upi" name="lfo.h" compile="0" resource="0" file="../dsp_fv/lfo.h"/>
+    <FILE id="LrLKjD" name="vibrato.h" compile="0" resource="0" file="../dsp_fv/vibrato.h"/>
   </MAINGROUP>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>

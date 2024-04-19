@@ -14,7 +14,7 @@ struct delayLineParameters
 /// <summary>
 /// Simple delay Line, Z^(-D) 
 /// </summary>
-class delayLine : private CircularBuffer<float>
+class delayLine : public CircularBuffer<float>
 {
 public:
 	/// <summary>
