@@ -9,13 +9,13 @@
 /// </summary>
 struct ReverbControlParameters
 {
-	double mix = 0.5;
-	double absorption = 20000;
-	double earlyReflexions = 1.0;
-	double decay = 0.0;
-	double damping = 0.005;
-	double modRate = 1.0;
-	double modDepth = 0.0;
+	float mix = 0.5;
+	float absorption = 20000;
+	float earlyReflexions = 1.0;
+	float decay = 0.0;
+	float damping = 0.005;
+	float modRate = 1.0;
+	float modDepth = 0.0;
 
 	// add additional control parameters here 
 };
@@ -49,11 +49,11 @@ struct ReverbStructureParameters
 	vector<delayLineParameters> reverbDelayLineParam = { {86, true}, {79, true}, {76, true}, {81, true}};
 	
 	// Reverberator vibratos
-	vibratoParameters vibratoParam = { 0.5, 1.0, true }; // excursion_ms , rate then enableVibrato
+	vibratoParameters vibratoParam = { 0.5, 1.0, true }; // depth, rate and then enableVibrato
 };
 
 
-class AbyssalPlateReverb
+class AbyssalPlateReverb : private Vibrato
 {
 public:
 	/// <summary>
@@ -71,7 +71,7 @@ public:
 	void updateParameters(ReverbControlParameters pControlParameters)
 	{
 
-		structureParameters.vibratoParam = {controlParameters.modDepth,controlParameters.modRate,  true };
+		structureParameters.vibratoParam = { controlParameters.modDepth,controlParameters.modRate,  true };
 		reverbVibratoV1.setParameters(structureParameters.vibratoParam);
 		reverbVibratoV2.setParameters(structureParameters.vibratoParam);
 
@@ -96,7 +96,7 @@ public:
 		earlyReflexAPF2.setParameters(structureParameters.earlyReflexAPF2Param);
 		earlyReflexAPF3.setParameters(structureParameters.earlyReflexAPF3Param);
 		earlyReflexAPF4.setParameters(structureParameters.earlyReflexAPF4Param);
-		
+
 		earlyReflexFcomb1.setParameters(structureParameters.earlyReflexFcomb1Param);
 		earlyReflexFcomb2.setParameters(structureParameters.earlyReflexFcomb2Param);
 
@@ -122,7 +122,7 @@ public:
 		Biquad rDampingFilter;
 
 		for (auto i = 0; i < 4; ++i)
-		{			
+		{
 			rModAPF.setParameters(structureParameters.reverbModulatedAPF_Param[i], structureParameters.reverbModulatedAPF_lfoParam[i]);
 			rModAPF.createDelayBuffer(sampleRate);
 
@@ -133,7 +133,7 @@ public:
 			rDelayLine.createDelayBuffer(sampleRate);
 
 			rDampingFilter.setType("direct");
-			rDampingFilter.updateParameters({ 1.0,0.0,0.0 }, { 1,(-1)*(float)controlParameters.damping,0.0 });
+			rDampingFilter.updateParameters({ 1.0,0.0,0.0 }, { 1,(-1) * (float)controlParameters.damping,0.0 });
 
 			reverbModAPF.push_back(std::move(rModAPF));
 			reverbAPF.push_back(std::move(rAPF));
@@ -141,22 +141,23 @@ public:
 			reverbDampingFilter.push_back(rDampingFilter);
 		}
 
+
 		reverbVibratoV1.setParameters(structureParameters.vibratoParam);
+		reverbVibratoV2.setParameters(structureParameters.vibratoParam);
+
 		reverbVibratoV1.reset(sampleRate);
 		reverbVibratoV2.reset(sampleRate);
 
-		reverbVibratoV1.createDelayBuffer(sampleRate, 100.0);
-
-		reverbVibratoV2.setParameters(structureParameters.vibratoParam);
-		reverbVibratoV2.createDelayBuffer(sampleRate,100.0);
+		reverbVibratoV1.createDelayBuffer(sampleRate/*, 100.0*/);
+		reverbVibratoV2.createDelayBuffer(sampleRate/*, 100.0*/);
 	}
 
 	vector<float> processAudioSample(vector<float> inputXn)
 	{
-		auto temp = controlParameters.earlyReflexions * ( earlyReflexion_processAudioSample(inputXn));
-		temp = controlParameters.earlyReflexions * temp + (1 - controlParameters.earlyReflexions) * 0.5 * (inputXn[0] + inputXn[1]);
-		auto out= reverberator_processAudioSample(temp);
-		return out;
+		auto temp = earlyReflexion_processAudioSample(inputXn);
+		temp = controlParameters.earlyReflexions * temp + (1.0f - controlParameters.earlyReflexions) *( 0.5f * (inputXn[0] + inputXn[1]));
+		auto out = reverberator_processAudioSample(temp);
+		return { (1.0f - controlParameters.mix) * inputXn[0] + (controlParameters.mix) * out[0], (1.0f - controlParameters.mix) * inputXn[1] + (controlParameters.mix) * out[1] };
 	}
 
 private:
@@ -192,7 +193,7 @@ private:
 
 		return output;
 	}
-	
+
 	/// <summary>
 	/// mono IN to stereo OUT
 	/// </summary>
@@ -226,8 +227,8 @@ private:
 
 		vector<float> outputYn = readOutputTaps();
 
-		outputYn[0] = (1 - controlParameters.mix) * inputXn + (controlParameters.mix) * outputYn[0];
-		outputYn[1] = (1 - controlParameters.mix) * inputXn + (controlParameters.mix) * outputYn[1];
+		outputYn[0] = outputYn[0];
+		outputYn[1] = outputYn[1];
 		return outputYn;
 
 	}
@@ -244,7 +245,7 @@ private:
 		yR -= reverbDelayLine[1].readDelayLine(1679);
 		yR -= reverbDelayLine[2].readDelayLine(2641);
 
-		return {0.16f * yL, 0.16f * yR };
+		return { 0.16f * yL, 0.16f * yR };
 	}
 
 	double sampleRate;
@@ -258,9 +259,9 @@ private:
 
 	// Reverberator blocks
 	vector<alternateAllPassFilter_modulated> reverbModAPF;
-	vector<alternateAllPassFilter> reverbAPF;	
+	vector<alternateAllPassFilter> reverbAPF;
 	vector<delayLine> reverbDelayLine;
 	vector<Biquad> reverbDampingFilter;
-	Vibrato reverbVibratoV1;
-	Vibrato reverbVibratoV2;
+	Vibrato reverbVibratoV1{ 100 };
+	Vibrato reverbVibratoV2{ 100 };
 };
