@@ -80,6 +80,7 @@ public:
     void setFrequency(double pFrequency)
     {
         phasorFrequency = pFrequency;
+        phasorInc = phasorFrequency / currentSampleRate;
     }
 
     /// <summary>
@@ -177,7 +178,7 @@ public:
         currentSampleRate = pSampleRate;
         phasorNormal.reset(currentSampleRate, 0.0);
         phasorQuarterPhase.reset(currentSampleRate, 0.25);
-
+        
         return true;
     }
 
