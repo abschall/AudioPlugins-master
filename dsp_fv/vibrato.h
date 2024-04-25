@@ -25,7 +25,7 @@ inline double doBipolarModulation(double bipolarModulatorValue, double minValue,
 
 
 /// <summary>
-/// parameters used by the Vibrato Class 
+/// Parameters used by the Vibrato Class 
 /// </summary>
 struct vibratoParameters
 {
@@ -72,7 +72,7 @@ public:
 		currentSampleRate = pSampleRate;
 		samplesPerMsec = currentSampleRate / 1000.0;
 
-		delayBuffer.createBuffer(bufferLength*samplesPerMsec);
+		delayBuffer.createBuffer((unsigned int) (bufferLength * samplesPerMsec));
 		delayBuffer.flush(); // initially flush the delay buffer 
 	}
 
@@ -86,7 +86,7 @@ public:
 		currentSampleRate = pSampleRate;
 		samplesPerMsec = currentSampleRate / 1000.0;
 		bufferLength = pBufferLength_ms;
-		delayBuffer.createBuffer(bufferLength * samplesPerMsec);
+		delayBuffer.createBuffer((unsigned int) (bufferLength * samplesPerMsec));
 		delayBuffer.flush();
 	}
 	/// <summary>
@@ -101,7 +101,8 @@ public:
 	}
 
 	/// <summary>
-	/// Processes an audio sample, applying modulation if enabled.
+	/// Processes an audio sample with a simple vibrato effect
+	/// Min and max delays intervals are 0.0 - 7.0 ms 
 	/// </summary>
 	/// <param name="inputXn">The input audio sample to process.</param>
 	/// <returns>The processed audio sample.</returns>
@@ -112,10 +113,10 @@ public:
 			delayBuffer.writeBuffer(inputXn);
 			auto oscSample = osc.renderAudioOuput();
 
-			float minDelay_ms = 0.0;
-			float maxDelay_ms = 7.0;
+			double minDelay_ms = 0.0;
+			double maxDelay_ms = 7.0;
 
-			float modValue = (float)oscSample.normalOutput * parameters.depth;
+			double modValue = oscSample.normalOutput * parameters.depth;
 			auto delayVal = doBipolarModulation(modValue, minDelay_ms, minDelay_ms + maxDelay_ms);
 
 			return delayBuffer.readBuffer(delayVal*samplesPerMsec);
