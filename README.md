@@ -31,6 +31,8 @@ Schroeder's 1961 Colorless Artificial Reverb Alforithm.
 ## dsp_fv Library
 [/dsp_fv](/dsp_fv) - My personal DSP library, housing the essential algorithmic components utilized in the plugins.
 
+## Abyssal Plate Reverb
+An ambient plate style reverb, inspired by both Moorer's and Dattorro's reverbs. Includes a vibrato in the feedback path. 
 
 ## Improvement Plan
 *April 1, 2024*
