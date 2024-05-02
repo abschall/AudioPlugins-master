@@ -265,7 +265,7 @@ public:
 	/// Sets the delay time in ms, feedback loop gain, and enables/ disables  the comb filter 
 	/// </summary>
 	/// <param name="pParameters"></param>
-	void setParameters(APFParameters pParameters)
+	virtual void setParameters(APFParameters pParameters) 
 	{
 		parameters.delayTime_ms = pParameters.delayTime_ms;
 		parameters.feedbackGain = pParameters.feedbackGain;
@@ -282,9 +282,8 @@ public:
 		currentSampleRate = pSampleRate;
 		samplesPerMsec = currentSampleRate / 1000.0;
 		auto bufferLength = (unsigned int)(parameters.delayTime_ms * samplesPerMsec) + 1;
-		parameters.delayTime_samples = (unsigned int)parameters.delayTime_ms * samplesPerMsec + 1;
+		parameters.delayTime_samples = parameters.delayTime_ms * samplesPerMsec;
 		delayBuffer.createBuffer(bufferLength);
-		delayBuffer.flush();
 	}
 
 	/// <summary>
@@ -457,4 +456,165 @@ protected:
 private:
 	APF_modulationParameters apfModParameters; // Modulation parameters
 	LFO lfo; // Low-frequency oscillator for modulation
+};
+
+struct  alternateAPF_1Parameters
+{
+	double feedbackGain = 0.0;
+	bool enableAPF = false;
+};
+
+
+class alternateAPF_1
+{
+public:
+	alternateAPF_1() {
+		aCoeffVector = { 1,0,0 };
+		bCoeffVector = { 1,0,0 };
+		form = "direct";
+	}
+
+	alternateAPF_1(const string f) :form(f)
+	{
+		aCoeffVector = { 1,0,0 };
+		bCoeffVector = { 1,0,0 };
+	}
+	/// <summary>
+	/// Constructs a Biquad filter with a specified form but with default coefficients.
+	/// </summary>
+	/// <param name="f">The form of the biquad filter (e.g., "direct", "canonical").</param>
+	alternateAPF_1(vector<double> aCoeff, vector<double> bCoeff, string f = "direct") :
+		aCoeffVector(aCoeff), bCoeffVector(bCoeff), form(f) { }
+
+	alternateAPF_1(double feedback, string f = "direct") 
+	{
+
+		aCoeffVector = { feedback,1,0 };
+		bCoeffVector = { 1,feedback,0 };
+		form = "direct";
+	}
+	alternateAPF_1(alternateAPF_1Parameters pParameters) : parameters(pParameters)
+	{
+		updateCoefficient(parameters.feedbackGain);
+		form = "direct";
+	}
+
+	/// <summary>
+	/// Updates the alternate allpass filter's feedback coefficient
+	/// </summary>
+	/// <param name="pFeedback"></param>
+	void updateCoefficient(double pFeedback)
+	{
+		aCoeffVector = { pFeedback,1,0 };
+		bCoeffVector = { 1,pFeedback,0 };
+
+		parameters.feedbackGain = pFeedback;
+	}
+	/// <summary>
+	/// Returns all the parameters at once 
+	/// </summary>
+	/// <returns></returns>
+	alternateAPF_1Parameters getParameters()
+	{
+		return parameters;
+	}
+
+	/// <summary>
+	/// Processes the incoming Audio sample
+	/// </summary>
+	/// <param name="inputXn"></param>
+	/// <returns> The processed Audio sample</returns>
+	double processAudioSample(float xn)
+	{
+		if (form == "direct")
+		{
+			float yn = aCoeffVector[0] * xn +
+				aCoeffVector[1] * xStateVector[0] +
+				aCoeffVector[2] * xStateVector[1] -
+				bCoeffVector[1] * yStateVector[0] -
+				bCoeffVector[2] * yStateVector[1];
+
+			xStateVector[1] = xStateVector[0];
+			xStateVector[0] = xn;
+
+			yStateVector[1] = yStateVector[0];
+			yStateVector[0] = yn;
+
+			return yn;
+		}
+	}
+
+private:
+	alternateAPF_1Parameters parameters;
+	vector<double> aCoeffVector;
+	vector<double> bCoeffVector;
+	vector<double> xStateVector{ 0.0f, 0.0f };
+	vector<double> yStateVector{ 0.0f, 0.0f };
+	vector<double> wStateVector{ 0.0f, 0.0f };
+	string form = "direct";
+};
+
+
+struct nestedAPFParameters
+{
+	double delayTime_ms = 0.0;
+	double feedbackGain_external = 0.0;
+	double feedbackGain_nested = 0.0;
+	bool enableAPF = false;
+	double delayTime_samples;
+};
+
+class nestedAPF : public allPassFilter
+{
+public:
+	/// <summary>
+	/// Resets the filter with a new sample and set the internal nested APF's feedback coefficient 
+	/// </summary>
+	/// <param name="pSampleRate">The new sample rate.</param>
+	void reset(double pSampleRate)
+	{
+		currentSampleRate = pSampleRate;
+		samplesPerMsec = currentSampleRate / 1000;
+		internalAPF.updateCoefficient(parameters.feedbackGain_nested);
+	}
+
+	/// <summary>
+	/// Sets parameters for the all-pass filter and its modulation.
+	/// </summary>
+	/// <param name="pAPFparameters">Parameters for the all-pass filter.</param>
+	/// <param name="pApfModParameters">Modulation parameters for the filter.</param>
+	void setParameters(nestedAPFParameters pNestedAPFParameters)
+	{
+		parameters = pNestedAPFParameters;
+		parameters.delayTime_samples = (parameters.delayTime_ms * samplesPerMsec);
+		APFParameters pAPFparameters = { parameters.delayTime_ms,parameters.feedbackGain_external, parameters.enableAPF, parameters.delayTime_samples };
+		allPassFilter::setParameters(pAPFparameters);
+		internalAPF.updateCoefficient(parameters.feedbackGain_nested);
+	}
+
+	/// <summary>
+	/// Processes an audio sample
+	/// </summary>
+	/// <param name="inputXn">The input audio sample to process.</param>
+	/// <returns>The processed audio sample.</returns>
+	float processAudioSample(float inputXn) override
+	{
+		if (parameters.enableAPF == true)
+		{
+			auto ynD = delayBuffer.readBuffer(parameters.delayTime_samples, true);
+			auto wn = -parameters.feedbackGain_external * ynD + inputXn;
+			auto wnD = internalAPF.processAudioSample(wn);
+
+			delayBuffer.writeBuffer(wnD);
+
+			return parameters.feedbackGain_external * wn + ynD;
+		}
+		else
+		{
+			return inputXn;
+		}
+	}
+private:
+	nestedAPFParameters parameters;
+	alternateAPF_1 internalAPF;
 };
