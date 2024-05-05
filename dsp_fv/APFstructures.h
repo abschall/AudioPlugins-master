@@ -10,11 +10,21 @@ struct delayLineParameters
 	bool enableDelay = false;
 	double delayTime_samples = 0.0;
 };
+/// <summary>
+/// parameters of the modulation LFO
+/// </summary>
+struct DelayLine_modulationParameters
+{
+	double LFORate_Hz = 0.0;
+	double excursion_ms = 0.0;
+	bool enableLFO = true;
+	double excursion_samples;
+};
 
 /// <summary>
 /// Simple delay Line, Z^(-D) 
 /// </summary>
-class delayLine : public CircularBuffer<float>
+class delayLine : private CircularBuffer<float>
 {
 public:
 	/// <summary>
@@ -25,7 +35,7 @@ public:
 	{
 		parameters.delayTime_ms = pParameters.delayTime_ms;
 		parameters.enableDelay = pParameters.enableDelay;
-		parameters.delayTime_samples = (unsigned int) parameters.delayTime_ms * samplesPerMsec + 1;
+		parameters.delayTime_samples = (unsigned int) parameters.delayTime_ms * samplesPerMsec;
 	}
 	/// <summary>
 	/// Creates the Delay Line's Delay Buffer (bufferLength = delay time),
@@ -37,7 +47,7 @@ public:
 		currentSampleRate = pSampleRate;
 		samplesPerMsec = currentSampleRate / 1000.0;
 		auto bufferLength = (unsigned int)(parameters.delayTime_ms * samplesPerMsec) + 1;
-		parameters.delayTime_samples = bufferLength;
+		parameters.delayTime_samples = parameters.delayTime_ms * samplesPerMsec;
 		delayBuffer.createBuffer(bufferLength);
 
 		// flushes the delayBuffer before any read or write.
@@ -68,9 +78,9 @@ public:
 	/// </summary>
 	/// <param name="pDelayTime_samples"></param>
 	/// <returns></returns>
-	float readDelayLine(unsigned int pDelayTime_samples)
+	float readDelayLine(float pDelayTime_samples)
 	{
-		return delayBuffer.readBuffer((unsigned int)pDelayTime_samples);
+		return delayBuffer.readBuffer(pDelayTime_samples);
 	}
 
 private:
@@ -80,6 +90,85 @@ private:
 	double samplesPerMsec;
 };
 
+/// <summary>
+/// UNTESTED !!
+/// A sinewave modulated delay Line
+/// </summary>
+class DelayLine_modulated : private CircularBuffer<float>
+{
+public:
+	/// <summary>
+	/// Resets the delay Line with a new sample rate and initializes the LFO
+	/// </summary>
+	/// <param name="pSampleRate">The new sample rate.</param>
+	void reset(double pSampleRate)
+	{
+		currentSampleRate = pSampleRate;
+		lfo.reset(currentSampleRate);
+	}
+
+	/// <summary>
+	/// Sets parameters for the delay Line and its modulation LFO
+	/// </summary>
+	/// <param name="pAPFparameters">Parameters for the all-pass filter.</param>
+	/// <param name="pApfModParameters">Modulation parameters for the filter.</param>
+	void setParameters(delayLineParameters pParameters, DelayLine_modulationParameters pDelayModParameters)
+	{
+		parameters = pParameters;
+		delayModParameters = pDelayModParameters;
+		OscillatorParameters lfoParams = { generatorWaveform::kSin, delayModParameters.LFORate_Hz };
+		lfo.setParameters(lfoParams);
+	}
+
+	/// <summary>
+	/// Creates a delay buffer based on the sample rate and modulation parameters.
+	/// </summary>
+	/// <param name="pSampleRate">The sample rate.</param>
+	void createDelayBuffer(double pSampleRate)
+	{
+		currentSampleRate = pSampleRate;
+		samplesPerMsec = currentSampleRate / 1000.0;
+
+		// Buffer length needs to take the excursion time (in samples) into account.
+		auto bufferLength = (unsigned int)((parameters.delayTime_ms + delayModParameters.excursion_ms) * samplesPerMsec + 1);
+		parameters.delayTime_samples = parameters.delayTime_ms * samplesPerMsec;
+		delayModParameters.excursion_samples = delayModParameters.excursion_ms * samplesPerMsec;
+		delayBuffer.createBuffer(bufferLength);
+		//flush the delay line
+		delayBuffer.flush();
+	}
+	/// <summary>
+	/// Processes an audio sample, applying modulation if enabled.
+	/// </summary>
+	/// <param name="inputXn">The input audio sample to process.</param>
+	/// <returns>The processed audio sample.</returns>
+	float processAudioSample(float inputXn)
+	{
+		if (parameters.enableDelay == true)
+		{
+			double modValue = 0.0;
+			if (delayModParameters.enableLFO == true)
+			{
+				auto outLfo = lfo.renderAudioOuput();
+				auto modValue = outLfo.normalOutput * delayModParameters.excursion_samples;
+			}
+
+			delayBuffer.writeBuffer(inputXn);
+			return  delayBuffer.readBuffer(parameters.delayTime_samples + modValue);
+		}
+		else
+		{
+			return inputXn;
+		}
+	}
+private:
+	DelayLine_modulationParameters delayModParameters;
+	delayLineParameters parameters;
+	LFO lfo;
+	double currentSampleRate;
+	double samplesPerMsec;
+	CircularBuffer delayBuffer;
+};
 
 struct CombFilterParameters
 {
@@ -488,7 +577,6 @@ public:
 
 	alternateAPF_1(double feedback, string f = "direct") 
 	{
-
 		aCoeffVector = { feedback,1,0 };
 		bCoeffVector = { 1,feedback,0 };
 		form = "direct";
