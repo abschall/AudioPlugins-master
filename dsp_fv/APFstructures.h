@@ -35,7 +35,7 @@ public:
 	{
 		parameters.delayTime_ms = pParameters.delayTime_ms;
 		parameters.enableDelay = pParameters.enableDelay;
-		parameters.delayTime_samples = (unsigned int) parameters.delayTime_ms * samplesPerMsec;
+		parameters.delayTime_samples = parameters.delayTime_ms * samplesPerMsec;
 	}
 	/// <summary>
 	/// Creates the Delay Line's Delay Buffer (bufferLength = delay time),
@@ -47,7 +47,6 @@ public:
 		currentSampleRate = pSampleRate;
 		samplesPerMsec = currentSampleRate / 1000.0;
 		auto bufferLength = (unsigned int)(parameters.delayTime_ms * samplesPerMsec) + 1;
-		parameters.delayTime_samples = parameters.delayTime_ms * samplesPerMsec;
 		delayBuffer.createBuffer(bufferLength);
 
 		// flushes the delayBuffer before any read or write.
@@ -58,14 +57,14 @@ public:
 	/// </summary>
 	/// <param name="inputXn"></param>
 	/// <returns></returns>
-	virtual float processAudioSample(float inputXn)
+	virtual double processAudioSample(double inputXn)
 	{
 		// full wet signal processing 
 
 		if (parameters.enableDelay == true)
 		{
 			delayBuffer.writeBuffer(inputXn);
-			return  delayBuffer.readBuffer(parameters.delayTime_samples);
+			return  delayBuffer.readBuffer(parameters.delayTime_samples, false);
 		}
 		else
 		{
@@ -76,7 +75,7 @@ public:
 	/// Writes to delayLine and increments writePointer by 1
 	/// </summary>
 	/// <param name="x"></param>
-	void writeDelayLine(float x)
+	void writeDelayLine(double x)
 	{
 		delayBuffer.writeBuffer(x);
 	}
@@ -298,7 +297,7 @@ public:
 		currentSampleRate = pSampleRate;
 		samplesPerMsec = currentSampleRate / 1000.0;
 		auto bufferLength = (unsigned int)(parameters.delayTime_ms * samplesPerMsec) + 1;
-		parameters.delayTime_samples = (unsigned int)parameters.delayTime_ms * samplesPerMsec + 1;
+		parameters.delayTime_samples = (unsigned int)parameters.delayTime_ms * samplesPerMsec;
 		delayBuffer.createBuffer(bufferLength);
 		delayBuffer.flush();
 	}
@@ -367,7 +366,7 @@ public:
 		parameters.delayTime_ms = pParameters.delayTime_ms;
 		parameters.feedbackGain = pParameters.feedbackGain;
 		parameters.enableAPF = pParameters.enableAPF;
-		parameters.delayTime_samples = (unsigned int)parameters.delayTime_ms * samplesPerMsec + 1;
+		parameters.delayTime_samples = parameters.delayTime_ms * samplesPerMsec;
 	}
 	/// <summary>
 	/// Creates the delay buffer (bufferLength = delay time),
@@ -379,7 +378,6 @@ public:
 		currentSampleRate = pSampleRate;
 		samplesPerMsec = currentSampleRate / 1000.0;
 		auto bufferLength = (unsigned int)(parameters.delayTime_ms * samplesPerMsec) + 1;
-		parameters.delayTime_samples = parameters.delayTime_ms * samplesPerMsec;
 		delayBuffer.createBuffer(bufferLength);
 	}
 
@@ -643,6 +641,20 @@ public:
 
 			return yn;
 		}
+		// Processes the input sample using the Direct Form 2 ("Canonical") flow 
+		else if (form == "canonical")
+		{
+			double wn = (xn - bCoeffVector[1] * wStateVector[0] -
+				bCoeffVector[2] * wStateVector[1]);
+			double yn = aCoeffVector[0] * wn +
+				aCoeffVector[1] * wStateVector[0] +
+				aCoeffVector[2] * wStateVector[1];
+
+
+			wStateVector[1] = wStateVector[0];
+			wStateVector[0] = wn;
+			return  yn;
+		}
 	}
 
 private:
@@ -652,7 +664,7 @@ private:
 	vector<double> xStateVector{ 0.0f, 0.0f };
 	vector<double> yStateVector{ 0.0f, 0.0f };
 	vector<double> wStateVector{ 0.0f, 0.0f };
-	string form = "direct";
+	string form = "canonical";
 };
 
 class stretchedAPF_2
@@ -795,5 +807,6 @@ public:
 	}
 private:
 	nestedAPFParameters parameters;
-	alternateAPF_1 internalAPF;
+	//alternateAPF_1 internalAPF;
+	stretchedAPF_2 internalAPF;
 };
