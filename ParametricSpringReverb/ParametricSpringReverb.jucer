@@ -14,6 +14,7 @@
     </GROUP>
     <FILE id="VOqP2B" name="APFstructures.h" compile="0" resource="0" file="../dsp_fv/APFstructures.h"/>
     <FILE id="f1ABSU" name="biquad.h" compile="0" resource="0" file="../dsp_fv/biquad.h"/>
+    <FILE id="hlwZBL" name="IIR_10.h" compile="0" resource="0" file="Source/IIR_10.h"/>
     <FILE id="MMAWYD" name="ParametricSpringReverb.h" compile="0" resource="0"
           file="Source/ParametricSpringReverb.h"/>
   </MAINGROUP>

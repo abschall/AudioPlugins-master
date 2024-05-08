@@ -73,6 +73,14 @@ public:
 		}
 	}
 	/// <summary>
+	/// Writes to delayLine and increments writePointer by 1
+	/// </summary>
+	/// <param name="x"></param>
+	void writeDelayLine(float x)
+	{
+		delayBuffer.writeBuffer(x);
+	}
+	/// <summary>
 	/// Reads the delay Line at a specific sample time. Delay TIme should be given in samples,
 	/// in order to avoid superfluous ms to sample conversion 
 	/// </summary>
@@ -547,13 +555,18 @@ private:
 	LFO lfo; // Low-frequency oscillator for modulation
 };
 
+/// <summary>
+/// Shared Parameters structure between alternateAPF_1 and stretchedAPF_2
+/// </summary>
 struct  alternateAPF_1Parameters
 {
 	double feedbackGain = 0.0;
 	bool enableAPF = false;
 };
 
-
+/// <summary>
+/// First-Order IIR Allpass
+/// </summary>
 class alternateAPF_1
 {
 public:
@@ -591,7 +604,7 @@ public:
 	/// Updates the alternate allpass filter's feedback coefficient
 	/// </summary>
 	/// <param name="pFeedback"></param>
-	void updateCoefficient(double pFeedback)
+	virtual void updateCoefficient(double pFeedback)
 	{
 		aCoeffVector = { pFeedback,1,0 };
 		bCoeffVector = { 1,pFeedback,0 };
@@ -612,7 +625,7 @@ public:
 	/// </summary>
 	/// <param name="inputXn"></param>
 	/// <returns> The processed Audio sample</returns>
-	double processAudioSample(float xn)
+	double processAudioSample(float xn) 
 	{
 		if (form == "direct")
 		{
@@ -642,7 +655,85 @@ private:
 	string form = "direct";
 };
 
+class stretchedAPF_2
+{
+public:
+	stretchedAPF_2() {
+		aCoeffVector = { 1,0,0 };
+		bCoeffVector = { 1,0,0 };
+		form = "direct";
+	}
 
+	stretchedAPF_2(const string f) :form(f)
+	{
+		aCoeffVector = { 1,0,0 };
+		bCoeffVector = { 1,0,0 };
+	}
+	/// <summary>
+	/// Constructs a Biquad filter with a specified form but with default coefficients.
+	/// </summary>
+	/// <param name="f">The form of the biquad filter (e.g., "direct", "canonical").</param>
+	stretchedAPF_2(vector<double> aCoeff, vector<double> bCoeff, string f = "direct") :
+
+		aCoeffVector(aCoeff), bCoeffVector(bCoeff), form(f) { }
+
+	stretchedAPF_2(double feedback, string f = "direct")
+	{
+		aCoeffVector = { feedback,0,1 };
+		bCoeffVector = { 1,0 ,feedback };
+		form = "direct";
+	}
+	stretchedAPF_2(alternateAPF_1Parameters pParameters) : parameters(pParameters)
+	{
+		updateCoefficient(parameters.feedbackGain);
+		form = "direct";
+	}
+
+	/// <summary>
+	/// Updates the alternate allpass filter's feedback coefficient
+	/// </summary>
+	/// <param name="pFeedback"></param>
+	void updateCoefficient(double pFeedback)
+	{
+		aCoeffVector = { pFeedback,0,1 };
+		bCoeffVector = { 1,0,pFeedback };
+
+		parameters.feedbackGain = pFeedback;
+	}
+
+	/// <summary>
+	/// Processes the incoming Audio sample
+	/// </summary>
+	/// <param name="inputXn"></param>
+	/// <returns> The processed Audio sample</returns>
+	double processAudioSample(float xn)
+	{
+		if (form == "direct")
+		{
+			float yn = aCoeffVector[0] * xn +
+				aCoeffVector[1] * xStateVector[0] +
+				aCoeffVector[2] * xStateVector[1] -
+				bCoeffVector[1] * yStateVector[0] -
+				bCoeffVector[2] * yStateVector[1];
+
+			xStateVector[1] = xStateVector[0];
+			xStateVector[0] = xn;
+
+			yStateVector[1] = yStateVector[0];
+			yStateVector[0] = yn;
+
+			return yn;
+		}
+	}
+private:
+	alternateAPF_1Parameters parameters;
+	vector<double> aCoeffVector;
+	vector<double> bCoeffVector;
+	vector<double> xStateVector{ 0.0f, 0.0f };
+	vector<double> yStateVector{ 0.0f, 0.0f };
+	vector<double> wStateVector{ 0.0f, 0.0f };
+	string form = "direct";
+};
 struct nestedAPFParameters
 {
 	double delayTime_ms = 0.0;

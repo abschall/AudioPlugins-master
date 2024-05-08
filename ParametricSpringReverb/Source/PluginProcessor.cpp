@@ -23,7 +23,11 @@ ParametricSpringReverbAudioProcessor::ParametricSpringReverbAudioProcessor()
     parameters(*this, nullptr, juce::Identifier::Identifier("AbyssalReverbVTS"),
         {
             std::make_unique<juce::AudioParameterFloat>(
-            "mix", "Mix", juce::NormalisableRange<float>(0.0f, 1.0f),0.0f) 
+            "mix", "Mix", juce::NormalisableRange<float>(0.0f, 1.0f),0.0f) ,
+            std::make_unique<juce::AudioParameterBool>(
+            "impulse", "Impulse", false) ,
+            std::make_unique<juce::AudioParameterFloat>(
+            "impulse_level", "Impulse Level", juce::NormalisableRange<float>(0.0f, 1.0f),0.16f)
         }
     )
 #endif
@@ -40,8 +44,10 @@ void ParametricSpringReverbAudioProcessor::prepareToPlay(double sampleRate, int 
     currentSampleRate = sampleRate;
 
     mix = parameters.getRawParameterValue("mix");
-
+    impulseBool = parameters.getRawParameterValue("impulse");
+    ir_level = parameters.getRawParameterValue("impulse_level");
     controlParameters.mix = mix->load();
+    controlParameters.IR_level = ir_level->load();
     reverbAlgorithm.reset(sampleRate);
     reverbAlgorithm.setParameters(controlParameters);
 }
@@ -88,16 +94,27 @@ void ParametricSpringReverbAudioProcessor::processBlock(juce::AudioBuffer<float>
 
     // get plugin parameters values
     controlParameters.mix = mix->load();
-
+    controlParameters.IR_level = ir_level->load();
     // update Reverb Algorithm parameters
     reverbAlgorithm.updateParameters(controlParameters);
 
     vector<float> input = { 0.0, 0.0 };
-
+    if (impulseBool->load())
+    {
+        input[0] = 1 * controlParameters.IR_level;
+        input[1] = 1 * controlParameters.IR_level;
+        impulseBool->store(0.0f);
+    }
+    else
+    {
+        input[0] = 0;
+        input[1] = 0;
+    }
     for (auto sample = 0;sample < buffer.getNumSamples(); ++sample)
     {
-        input[0] = BufferIn_L[sample];
-        input[1] = BufferIn_R[sample];
+        //input[0] = BufferIn_L[sample];
+        //input[1] = BufferIn_R[sample];
+
         auto yn = reverbAlgorithm.processAudioSample(input);
         BufferOut_L[sample] = yn[0];
         BufferOut_R[sample] = yn[1];

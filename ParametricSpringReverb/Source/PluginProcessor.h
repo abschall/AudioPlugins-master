@@ -61,7 +61,8 @@ private:
 
     // Effect control parameter
     std::atomic<float>* mix = nullptr;
-
+    std::atomic<float>* ir_level = nullptr;
+    std::atomic<float>* impulseBool = nullptr;
     ParametricSpringReverb reverbAlgorithm;
     ReverbControlParameters controlParameters;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ParametricSpringReverbAudioProcessor)
