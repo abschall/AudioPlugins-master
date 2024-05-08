@@ -32,7 +32,7 @@ public:
     /// Constructs a Biquad filter with a specified form but with default coefficients.
     /// </summary>
     /// <param name="f">The form of the biquad filter (e.g., "direct", "canonical").</param>
-    Biquad(vector<float> aCoeff, vector<float> bCoeff, int numCoeff, juce::String f = "direct") :
+    Biquad(vector<double> aCoeff, vector<double> bCoeff, int numCoeff, juce::String f = "direct") :
         aCoeffVector(aCoeff), bCoeffVector(bCoeff), form(f) { }
 
     /// <summary>
@@ -40,7 +40,7 @@ public:
     /// </summary>
     /// <param name="aCoeff">New set of feedback coefficients.</param>
     /// <param name="bCoeff">New set of feedforward coefficients.</param>
-    void updateParameters(vector<float> aCoeff, vector<float> bCoeff)
+    void updateParameters(vector<double> aCoeff, vector<double> bCoeff)
     {
         // updates the biquad class a and b  parameters 
         for (int i = 0; i < 3; ++i)
@@ -74,7 +74,7 @@ public:
     /// </summary>
     /// <param name="dry">Gain for the dry (unprocessed) signal.</param>
     /// <param name="processed">Gain for the wet (processed) signal.</param>
-    void setDryWetGain(float dry, float processed) 
+    void setDryWetGain(double dry, double processed) 
     {
         dryCoeff = dry;
         processedCoeff = processed;
@@ -85,11 +85,12 @@ public:
     /// </summary>
     /// <param name="xn">The input audio sample.</param>
     /// <returns>The filtered audio sample.</returns>
-    virtual float processAudioSample(float xn)
+    virtual double processAudioSample(double xn)
     {
+        // Processes the input sample using the Direct Form 1 flow 
         if (form == juce::String("direct"))
         {
-            float yn = processedCoeff * (aCoeffVector[0] * xn +
+            double yn = processedCoeff * (aCoeffVector[0] * xn +
                 aCoeffVector[1] * xStateVector[0] +
                 aCoeffVector[2] * xStateVector[1] -
                 bCoeffVector[1] * yStateVector[0] -
@@ -105,23 +106,25 @@ public:
 
             return yn;
         }
+        // Processes the input sample using the Direct Form 2 ("Canonical") flow 
         else if (form == juce::String("canonical"))
         {
-            auto wn = (float) ( xn - aCoeffVector[0] * wStateVector[0] - 
+            auto wn = (double) ( xn - aCoeffVector[0] * wStateVector[0] - 
                                 bCoeffVector[1] * wStateVector[1]);
-            auto ynUnprocessed = (float) ( aCoeffVector[0] * wn     + 
+            auto ynUnprocessed = (double) ( aCoeffVector[0] * wn     + 
                                 aCoeffVector[1] * wStateVector[0]   + 
                                 aCoeffVector[2] * wStateVector[1]);
 
             
             wStateVector[1] = wStateVector[0];
             wStateVector[0] = wn;
-            return (float) (processedCoeff * ynUnprocessed +dryCoeff * xn); //yn
+            return (double) (processedCoeff * ynUnprocessed +dryCoeff * xn); //yn
 
         }
+
         else if (form == juce::String("None"))
         {
-            float yn = xn;
+            double yn = xn;
             return yn;
         }
     }
@@ -135,12 +138,12 @@ public:
     }
 
 private:
-    vector<float> aCoeffVector;
-    vector<float> bCoeffVector;
-    vector<float> xStateVector{ 0.0f, 0.0f };
-    vector<float> yStateVector{ 0.0f, 0.0f };
-    vector<float> wStateVector{ 0.0f, 0.0f };
-    float dryCoeff = 0.0;
-    float processedCoeff = 1.0;
+    vector<double> aCoeffVector;
+    vector<double> bCoeffVector;
+    vector<double> xStateVector{ 0.0f, 0.0f };
+    vector<double> yStateVector{ 0.0f, 0.0f };
+    vector<double> wStateVector{ 0.0f, 0.0f };
+    double dryCoeff = 0.0;
+    double processedCoeff = 1.0;
     juce::String form;
 };
