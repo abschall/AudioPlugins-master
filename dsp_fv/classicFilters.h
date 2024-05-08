@@ -39,15 +39,15 @@ public:
     /// <param name="cornerFreq"></param>
     /// <param name="qualityFactor"></param>
     /// <param name="sampleFreq"></param>
-    void setCoefficients(float cornerFreq, float qualityFactor, float sampleFreq, float gain = 1.0f /*full Wet*/)
+    void setCoefficients(double cornerFreq, double qualityFactor, double sampleFreq, double gain = 1.0f /*full Wet*/)
     {
 
-        vector<float> aCoeff;
-        vector<float> bCoeff;
+        vector<double> aCoeff;
+        vector<double> bCoeff;
 
         if (filterType == juce::String("LPF1"))
         {
-            auto theta_c = juce::MathConstants<float>::twoPi * cornerFreq / sampleFreq;
+            auto theta_c = juce::MathConstants<double>::twoPi * cornerFreq / sampleFreq;
             auto gamma = std::cos(theta_c) / (1 + std::sin(theta_c));
             aCoeff.push_back((1 - gamma) / 2);
             aCoeff.push_back((1 - gamma) / 2);
@@ -60,7 +60,7 @@ public:
         }
         else if (filterType == juce::String("HPF1"))
         {
-            auto theta_c = juce::MathConstants<float>::twoPi * cornerFreq / sampleFreq;
+            auto theta_c = juce::MathConstants<double>::twoPi * cornerFreq / sampleFreq;
             auto gamma = std::cos(theta_c) / (1 + std::sin(theta_c));
 
             aCoeff.push_back((1 + gamma) / 2);
@@ -73,7 +73,7 @@ public:
         }
         else if (filterType == juce::String("LPF2"))
         {
-            auto theta_c = juce::MathConstants<float>::twoPi * cornerFreq / sampleFreq;
+            auto theta_c = juce::MathConstants<double>::twoPi * cornerFreq / sampleFreq;
             auto d = 1 / qualityFactor;
             auto beta = 0.5 * (1 - d / 2 * std::sin(theta_c)) / (1 + d / 2 * std::sin(theta_c));
             auto gamma = std::cos(theta_c) * (0.5 + beta);
@@ -89,7 +89,7 @@ public:
         }
         else if (filterType == juce::String("HPF2"))
         {
-            auto theta_c = juce::MathConstants<float>::twoPi * cornerFreq / sampleFreq;
+            auto theta_c = juce::MathConstants<double>::twoPi * cornerFreq / sampleFreq;
             auto d = 1 / qualityFactor;
             auto beta = 0.5 * (1 - d / 2 * std::sin(theta_c)) / (1 + d / 2 * std::sin(theta_c));
             auto gamma = std::cos(theta_c) * (0.5 + beta);
@@ -120,10 +120,10 @@ public:
 
     /// <summary>
     /// sets te Dry and Wet parameters of the underlying biquadStruct member,
-    /// Wet (processed) = (float) Gain, Dry  = 1 - (float) Gain
+    /// Wet (processed) = (double) Gain, Dry  = 1 - (double) Gain
     /// </summary>
     /// <param name="gain"></param>
-    void setFilterGain(float gain)
+    void setFilterGain(double gain)
     {
         biquadStruct.setDryWetGain(1.0f - gain, gain);
     }
@@ -144,9 +144,9 @@ public:
     /// </summary>
     /// <param name="xn"></param>
     /// <returns> returns the output sample</returns>
-    float processAudioSample(float xn) override
+    double processAudioSample(double xn) override
     {
-        auto yn = (float)biquadStruct.processAudioSample(xn);
+        auto yn = (double)biquadStruct.processAudioSample(xn);
         return yn;
     }
 

@@ -109,16 +109,16 @@ public:
         // Processes the input sample using the Direct Form 2 ("Canonical") flow 
         else if (form == juce::String("canonical"))
         {
-            auto wn = (double) ( xn - aCoeffVector[0] * wStateVector[0] - 
-                                bCoeffVector[1] * wStateVector[1]);
-            auto ynUnprocessed = (double) ( aCoeffVector[0] * wn     + 
+            double wn = ( xn - bCoeffVector[1] * wStateVector[0] - 
+                                bCoeffVector[2] * wStateVector[1]);
+            double ynUnprocessed =aCoeffVector[0] * wn     + 
                                 aCoeffVector[1] * wStateVector[0]   + 
-                                aCoeffVector[2] * wStateVector[1]);
+                                aCoeffVector[2] * wStateVector[1];
 
             
             wStateVector[1] = wStateVector[0];
             wStateVector[0] = wn;
-            return (double) (processedCoeff * ynUnprocessed +dryCoeff * xn); //yn
+            return processedCoeff * ynUnprocessed +dryCoeff * xn; //yn
 
         }
 
