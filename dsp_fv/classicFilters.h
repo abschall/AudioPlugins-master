@@ -20,7 +20,7 @@ public:
 
     ClassicFilters()
     {
-        biquadStruct.setType("direct");
+        biquadStruct.setType("canonical");
 
     }
     /// <summary>

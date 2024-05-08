@@ -155,8 +155,11 @@ private:
 /// rs : attenuation in the stop band 60 dB
 /// </summary>
 /// 
-struct ellipticLPF
+struct IIRFilterCoeff
 {
+	//filter order
+	unsigned int N = 10;
+
 	//calculated using Python's scipy signal library
 	// 2nd order cascaded filter structures coefficients
 	//4KHz
@@ -183,10 +186,68 @@ struct ellipticLPF
 		{1., -1.53319663,		0.92846835},
 		{1., -1.51330346,		0.97507128},
 		{1., -1.50934335,		0.99410041} };
+};
 
-	// 4 kHz direct form coefficients
-	vector<double> aCoeffDirect = { 0.0030566 , -0.00204192,  0.00278581,  0.00278581, -0.00204192,
-		 0.0030566 };
-	vector<double> bCoeffDirect = { 1.        , -4.07494845,  7.01834103, -6.33547294,  2.98854023,
-		-0.58885888 };
+/// <summary>
+/// IIR filter based on 2nd order biquad filter structures, expects an even numbered filter order 
+/// </summary>
+class IIRfilter
+{
+public:
+	IIRfilter() {
+		initializeFilter();
+	}
+
+	/// <summary>
+	/// Updates the filter's cascaded biquad filter structures 
+	/// </summary>
+	/// <param name="pacoeff"></param>
+	/// <param name="pbcoeff"></param>
+	void updateCoeff(vector<vector<double>> pacoeff, vector<vector<double>> pbcoeff, unsigned int pN, string form ="canonical")
+	{
+		coeff.N = pN;
+		coeff.acoeff = pacoeff;
+		coeff.bcoeff = pbcoeff;
+		Biquad ellipticFilterBlock{ form };
+		for (auto i = 0; i < int(coeff.N / 2); ++i)
+		{
+			ellipticFilterBlock.updateParameters(coeff.acoeff[i], coeff.bcoeff[i]);
+			ellipticFilterBlock.setDryWetGain(0, 1.0);
+			// Update the current filter's biquad structures
+			filter[i] = ellipticFilterBlock;
+		}
+	}
+
+	/// <summary>
+	/// Processes the input sample by a N-th order IIR filter 
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns> The processed audio sample</returns>
+	double processAudio(double x)
+	{
+		double output = x;
+		for (auto i = 0; i < int(coeff.N / 2); ++i)
+		{
+			output = filter[i].processAudioSample(output);
+		}
+		return output;
+	}
+private:
+	/// <summary>
+	/// sets 
+	/// </summary>
+	void initializeFilter()
+	{
+		Biquad ellipticFilterBlock{ "canonical" };
+		for (auto i = 0; i < int(coeff.N / 2); ++i)
+		{
+
+			ellipticFilterBlock.updateParameters(coeff.acoeff[i], coeff.bcoeff[i]);
+			ellipticFilterBlock.setDryWetGain(0, 1.0);
+			filter.push_back(ellipticFilterBlock);
+		}
+	}
+	// Member variables 
+	IIRFilterCoeff coeff; 
+	vector<Biquad> filter;
 };
