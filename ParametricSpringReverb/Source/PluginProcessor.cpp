@@ -23,11 +23,11 @@ ParametricSpringReverbAudioProcessor::ParametricSpringReverbAudioProcessor()
     parameters(*this, nullptr, juce::Identifier::Identifier("AbyssalReverbVTS"),
         {
             std::make_unique<juce::AudioParameterFloat>(
-            "mix", "Mix", juce::NormalisableRange<float>(0.0f, 1.0f),0.0f) ,
+            "mix", "Mix", juce::NormalisableRange<float>(0.0f, 1.0f),1.0f) ,
             std::make_unique<juce::AudioParameterBool>(
             "impulse", "Impulse", false) ,
             std::make_unique<juce::AudioParameterFloat>(
-            "impulse_level", "Impulse Level", juce::NormalisableRange<float>(0.0f, 1.0f),0.16f)
+            "impulse_level", "Impulse Level", juce::NormalisableRange<float>(0.0f, 2.0f),1.0f)
         }
     )
 #endif

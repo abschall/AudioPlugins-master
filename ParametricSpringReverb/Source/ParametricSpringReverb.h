@@ -16,25 +16,25 @@ struct ReverbControlParameters
 /// </summary>
 struct ReverbStructureParameters
 {
-	const double fC = 4200;			// Transition frequency
-	const unsigned int Mlow = 100;		// Number of cascaded APF structures below fC
-	const unsigned int Mhigh = 50;	// Number of cascaded APF structures above fC
+	const double fC = 4300;			// Transition frequency
+	const unsigned int Mlow = 200;		// Number of cascaded APF structures below fC
+	const unsigned int Mhigh = 0;	// Number of cascaded APF structures above fC
 
 	struct SpringModelParameters
 	{
-		double timeDelay_ms = 56;	// Delay Time in ms 
+		double timeDelay_ms = 66;	// Delay Time in ms 
 		float Nripple = 0.5;
 		double ghf = -0.77;			// high - frequency chirps feedback gain
 		double glf = -0.8;			// low - frequency chirps feedback gain
-		double gmod_high = 12;		// Chf delay line modulation depth
+		double gmod_high = 6;		// Chf delay line modulation depth
 		double gmod_low = 6;			// Clf delay line modulation depth
 
 		double gripple = 0.05;		// Ripple filter feedforward coefficient
-		double gecho = 0.05;			// Pre - echo delay Line feedforward coefficient
+		double gecho = -0.1;			// Pre - echo delay Line feedforward coefficient
 
 		// Coupling coefficients
 		double	gdry = 0.0;
-		double	ghigh = 0.005;
+		double	ghigh = 0.001;
 		double	glow = 1.0;
 
 		double a1 = 0.62;			// Low frequency nested First-order all pass filter coefficent 
@@ -70,9 +70,9 @@ struct ReverbStructureParameters
 	double DC_scalingFactor = (1 + aDC) / 2; // Clf DC HPF scaling factor 
 
 	// white noise Leaky Integrator
-	double fint = 2000;
-	float aint = tan(3.1415 / 4 - fint / defaultSampleRate * 3.1415); // Leaky Integrator coefficient 
-
+	double fint = 200;
+	//float aint = tan(3.1415 / 4 - fint / defaultSampleRate * 3.1415); // Leaky Integrator coefficient 
+	double aint = 0.93;
 	// Cross-coupling coefficients
 	double C1 = 0.1, C2 = 0.0;
 
@@ -115,8 +115,8 @@ public:
 	void reset(double pSampleRate)
 	{
 		sampleRate = pSampleRate;
+
 		nestedAPF rNestedAPF;
-		structureParameters.fN = sampleRate / 2;
 
 		// Mlow-order stretched APF initialization
 		for (auto i = 0; i < structureParameters.Mlow; ++i)
@@ -131,18 +131,6 @@ public:
 		DCFilter.updateParameters({ 1,-1, 0 },
 			{ 1, -(float)structureParameters.aDC, 0 });
 		DCFilter.setDryWetGain(0, 1.0);
-
-		// Elliptic Filter initialization using cascaded 2nd order Biquad Filters 
-		Biquad ellipticFilterBlock{ "direct" };
-		for (auto i = 0; i < 5; ++i)
-		{
-			
-			ellipticFilterBlock.updateParameters(ellipticFilterCoeff.acoeff[i], ellipticFilterCoeff.bcoeff[i]);
-			ellipticFilterBlock.setDryWetGain(0, 1.0);
-			ellipticFilter.push_back(ellipticFilterBlock);
-		}
-
-		ellipticFilter2.updateParameters(ellipticFilterCoeff.aCoeffDirect, ellipticFilterCoeff.bCoeffDirect, 6);
 
 		// MultiTap delay Line initialization 
 		ClfDelayLine.setParameters(structureParameters.ClfDelayLineParam);
@@ -167,7 +155,7 @@ public:
 		static float ynD = 0.0f;
 
 		auto temp = input - ynD;
-		temp = structureParameters.DC_scalingFactor *  DCFilter.processAudioSample(temp);
+		//temp = structureParameters.DC_scalingFactor *  DCFilter.processAudioSample(temp);
 		temp = cascadedAPF_procesAudio(temp);
 		output = temp;
 		ynD = structureParameters.springModelParam.glf *  multitapDelay_processAudio(temp);
@@ -213,12 +201,8 @@ private:
 
 		}
 		// Filter the signal above fC, keep only low frequency chirps
-		//for (auto i = 0; i < 5; ++i)
-		//{
-		//	output = ellipticFilter[i].processAudioSample(output);
-		//}
+		output = ellipticFilter.processAudio(output);
 
-		//output = ellipticFilter2.processAudioSample(output);
 		return output;
 	}
 
@@ -226,26 +210,42 @@ private:
 	{	
 		juce::Random rnd;
 		auto noiseMod = leakyIntegrator.processAudioSample(rnd.nextFloat()) * structureParameters.springModelParam.gmod_low;
-		
+		ClfDelayLine.writeDelayLine(x);		
 		auto temp = ClfDelayLine.readDelayLine(structureParameters.L0 * structureParameters.defaultSamplesPerMs + noiseMod);
-		ClfDelayLine.writeDelayLine(x);
-		temp = preechoDelayLine.processAudioSample(temp) + structureParameters.springModelParam.gecho*temp;
-		temp = rippleFilterDelayLine.processAudioSample(temp) + structureParameters.springModelParam.gripple * temp ;
-		return temp;
+		
+		bool combStyle = true;
+		if (combStyle)
+		{
+			// Process using Preecho filter, comb filter style
+			auto tempwet = preechoDelayLine.readDelayLine(structureParameters.Lecho);
+			auto fullwet = temp + structureParameters.springModelParam.gecho * tempwet;
+			preechoDelayLine.writeDelayLine(fullwet);
+			temp = fullwet;
 
+			// Process by Ripple Filter, comb filter style
+			tempwet = rippleFilterDelayLine.readDelayLine(structureParameters.Lecho);
+			fullwet = temp + structureParameters.springModelParam.gecho * tempwet;
+			rippleFilterDelayLine.writeDelayLine(fullwet);
+			temp = fullwet;
+		}
+		else
+		{
+			temp = preechoDelayLine.processAudioSample(temp) + structureParameters.springModelParam.gecho*temp;
+			temp = rippleFilterDelayLine.processAudioSample(temp) + structureParameters.springModelParam.gripple * temp ;
+		}
+
+		return temp;
 	}
 
 	double sampleRate;
 	ReverbControlParameters controlParameters;
 	ReverbStructureParameters structureParameters;
 	vector<nestedAPF> Clf_cascadedAPF;
-	Biquad DCFilter{ "direct" };
-	Biquad leakyIntegrator{ "direct" };
-	ellipticLPF ellipticFilterCoeff;
-	vector<Biquad> ellipticFilter;
-	IIR_10 ellipticFilter2{ "direct" };
+	Biquad DCFilter{ "canonical" };
+	Biquad leakyIntegrator{ "canonical" };
+	IIRfilter ellipticFilter;
 	delayLine preechoDelayLine, rippleFilterDelayLine, ClfDelayLine;
-
+	IIRFilterCoeff newCoeff;
 };
 
 /// <summary>
@@ -372,8 +372,10 @@ public:
 		return { controlParameters.mix * mixedSignal + (1 - controlParameters.mix) * input,controlParameters.mix * mixedSignal + (1 - controlParameters.mix) * input };
 	}
 
+
 private:
 	double sampleRate;
+	IIRfilter ellipticFilter;
 	ReverbControlParameters controlParameters;
 	ReverbStructureParameters structureParameters;
 	Clf_structure clf_structure;
