@@ -27,7 +27,7 @@ ParametricSpringReverbAudioProcessor::ParametricSpringReverbAudioProcessor()
             std::make_unique<juce::AudioParameterBool>(
             "impulse", "Impulse", false) ,
             std::make_unique<juce::AudioParameterFloat>(
-            "impulse_level", "Impulse Level", juce::NormalisableRange<float>(0.0f, 2.0f),1.0f)
+            "impulse_level", "Impulse Level", juce::NormalisableRange<float>(0.0f, 5.0f),1.0f)
         }
     )
 #endif
@@ -99,21 +99,21 @@ void ParametricSpringReverbAudioProcessor::processBlock(juce::AudioBuffer<float>
     reverbAlgorithm.updateParameters(controlParameters);
 
     vector<float> input = { 0.0, 0.0 };
-    if (impulseBool->load())
-    {
-        input[0] = 1 * controlParameters.IR_level;
-        input[1] = 1 * controlParameters.IR_level;
-        impulseBool->store(0.0f);
-    }
-    else
-    {
-        input[0] = 0;
-        input[1] = 0;
-    }
+    //if (impulseBool->load())
+    //{
+    //    input[0] = 1 * controlParameters.IR_level;
+    //    input[1] = 1 * controlParameters.IR_level;
+    //    impulseBool->store(0.0f);
+    //}
+    //else
+    //{
+    //    input[0] = 0;
+    //    input[1] = 0;
+    //}
     for (auto sample = 0;sample < buffer.getNumSamples(); ++sample)
     {
-        //input[0] = BufferIn_L[sample];
-        //input[1] = BufferIn_R[sample];
+        input[0] = BufferIn_L[sample];
+        input[1] = BufferIn_R[sample];
 
         auto yn = reverbAlgorithm.processAudioSample(input);
         BufferOut_L[sample] = yn[0];

@@ -9,7 +9,8 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "ParametricSpringReverb.h"
+//#include "ParametricSpringReverb.h"
+#include "ParametricSpringReverb_downsampled.h"
 
 //==============================================================================
 /**

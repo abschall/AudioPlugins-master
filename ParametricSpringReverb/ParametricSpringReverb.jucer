@@ -17,6 +17,8 @@
     <FILE id="hlwZBL" name="IIR_10.h" compile="0" resource="0" file="Source/IIR_10.h"/>
     <FILE id="MMAWYD" name="ParametricSpringReverb.h" compile="0" resource="0"
           file="Source/ParametricSpringReverb.h"/>
+    <FILE id="ho1uGF" name="ParametricSpringReverb_downsampled.h" compile="0"
+          resource="0" file="Source/ParametricSpringReverb_downsampled.h"/>
   </MAINGROUP>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>

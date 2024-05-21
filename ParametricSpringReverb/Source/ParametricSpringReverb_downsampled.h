@@ -1,4 +1,8 @@
 #pragma once
+
+/*
+* Spring reverb with Downsampled Clf block 
+*/
 #include "../../dsp_fv/APFstructures.h"
 #include "../../dsp_fv/classicFilters.h"
 #include "IIR_10.h"
@@ -27,14 +31,14 @@ struct ReverbStructureParameters
 		double ghf = -0.77;			// high - frequency chirps feedback gain
 		double glf = -0.8;			// low - frequency chirps feedback gain
 		double gmod_high = 6;		// Chf delay line modulation depth
-		double gmod_low = 6;			// Clf delay line modulation depth
+		double gmod_low = 12;		// Clf delay line modulation depth
 
 		double gripple = 0.05;		// Ripple filter feedforward coefficient
-		double gecho = -0.1;			// Pre - echo delay Line feedforward coefficient
+		double gecho = - 0.1;			// Pre - echo delay Line feedforward coefficient
 
 		// Coupling coefficients
 		double	gdry = 0.0;
-		double	ghigh = 0.001;
+		double	ghigh = 0.01;
 		double	glow = 1.0;
 
 		double a1 = 0.62;			// Low frequency nested First-order all pass filter coefficent 
@@ -42,9 +46,9 @@ struct ReverbStructureParameters
 
 	// Derived variables 
 	SpringModelParameters springModelParam;
-	double defaultSampleRate = 44100; 
-	double defaultSamplesPerMs = 44.1;
-	double fN = defaultSampleRate / 2;
+	double defaultSampleRate = 44100;
+	double defaultSamplesPerMs = 44.1/2 ;
+	double fN = defaultSampleRate / 4;
 	double K = fN / fC;
 	int K1 = (int)(round(K) - 1);
 	double d = K - K1;
@@ -59,11 +63,11 @@ struct ReverbStructureParameters
 	double Lecho = L / 5; // Pre-echo delay line time in ms 
 	double Lripple = (2 * K * springModelParam.Nripple) / defaultSamplesPerMs; // Ripple filter delay mine length in ms
 	double L0 = L - Lecho - Lripple; // Clf Modulated delayLine length in ms 
-	
+
 	// High frequency chirps delay struycture length
-	double Lhigh = L / 2.3;
+	double Lhigh = L * 2 / 2.3;
 	double ahigh = -0.6; // High-Frequency chirps 1st-order APF feedback coefficient
-	 
+
 	// Clf DC high pass filter (40 Hz)
 	double fDC_cutoff = 40; // Clf DC HPF cutoff frequency 
 	double aDC = tan(3.1415 / 4 - fDC_cutoff / defaultSampleRate * 3.1415); // Clf DC HPF coefficient 
@@ -79,9 +83,9 @@ struct ReverbStructureParameters
 
 	// Clf blocks, times in ms
 	nestedAPFParameters ClfCascadedAPFParam = { K1 / defaultSamplesPerMs, springModelParam.a1, a2, true };
-	delayLineParameters ClfDelayLineParam = { L0 * 1.3 , true }; 
-	delayLineParameters preechoDelayLineParam = { Lecho, true }; 
-	delayLineParameters rippleFilterDelayLineParam = { Lripple, true }; 
+	delayLineParameters ClfDelayLineParam = { L0 * 1.3 , true };
+	delayLineParameters preechoDelayLineParam = { Lecho, true };
+	delayLineParameters rippleFilterDelayLineParam = { Lripple, true };
 
 	//Chf block
 	alternateAPF_1Parameters ChfCascadedAPFParam = { ahigh, true };
@@ -112,18 +116,18 @@ public:
 		setParameters(pControlParameters);
 	}
 
-	void reset(double pSampleRate)
+	void reset(double pSampleRaten, double pDownSampleRate)
 	{
-		sampleRate = pSampleRate;
-
+		sampleRate = pSampleRaten;
+		downSampleRate = pDownSampleRate;
 		nestedAPF rNestedAPF;
 
 		// Mlow-order stretched APF initialization
 		for (auto i = 0; i < structureParameters.Mlow; ++i)
 		{
-			rNestedAPF.reset(sampleRate);
+			rNestedAPF.reset(downSampleRate);
 			rNestedAPF.setParameters(structureParameters.ClfCascadedAPFParam);
-			rNestedAPF.createDelayBuffer(sampleRate);
+			rNestedAPF.createDelayBuffer(downSampleRate);
 			Clf_cascadedAPF.push_back(std::move(rNestedAPF));
 		}
 
@@ -134,11 +138,11 @@ public:
 
 		// MultiTap delay Line initialization 
 		ClfDelayLine.setParameters(structureParameters.ClfDelayLineParam);
-		ClfDelayLine.createDelayBuffer(sampleRate);
+		ClfDelayLine.createDelayBuffer(downSampleRate);
 		rippleFilterDelayLine.setParameters(structureParameters.rippleFilterDelayLineParam);
-		rippleFilterDelayLine.createDelayBuffer(sampleRate);
+		rippleFilterDelayLine.createDelayBuffer(downSampleRate);
 		preechoDelayLine.setParameters(structureParameters.preechoDelayLineParam);
-		preechoDelayLine.createDelayBuffer(sampleRate);
+		preechoDelayLine.createDelayBuffer(downSampleRate);
 
 		// Leaky-Integrator which filters the modulation noise
 		leakyIntegrator.updateParameters({ (1 - structureParameters.aint),0,0 }, { 1, -structureParameters.aint ,0 });
@@ -151,6 +155,7 @@ public:
 	/// <returns> Processed audio sample </returns>
 	float processAudioSample(float input)
 	{
+
 		float output = 0.0f;
 		static float ynD = 0.0f;
 
@@ -158,8 +163,8 @@ public:
 		//temp = structureParameters.DC_scalingFactor *  DCFilter.processAudioSample(temp);
 		temp = cascadedAPF_procesAudio(temp);
 		output = temp;
-		ynD = structureParameters.springModelParam.glf *  multitapDelay_processAudio(temp);
-		
+		ynD = structureParameters.springModelParam.glf * multitapDelay_processAudio(temp);
+
 		return output;
 	}
 
@@ -175,7 +180,7 @@ public:
 
 		ynD = rippleFilterDelayLine.readDelayLine(structureParameters.Lripple * 44.1);
 		auto temp = input - structureParameters.springModelParam.glf * ynD;
-		temp = structureParameters.DC_scalingFactor * DCFilter.processAudioSample(temp);
+		//temp = structureParameters.DC_scalingFactor * DCFilter.processAudioSample(temp);
 		temp = cascadedAPF_procesAudio(temp);
 		output = temp;
 
@@ -201,18 +206,16 @@ private:
 
 		}
 		// Filter the signal above fC, keep only low frequency chirps
-		output = ellipticFilter.processAudio(output);
-
 		return output;
 	}
 
 	float multitapDelay_processAudio(float x)
-	{	
+	{
 		juce::Random rnd;
 		auto noiseMod = leakyIntegrator.processAudioSample(rnd.nextFloat()) * structureParameters.springModelParam.gmod_low;
-		ClfDelayLine.writeDelayLine(x);		
+		ClfDelayLine.writeDelayLine(x);
 		auto temp = ClfDelayLine.readDelayLine(structureParameters.L0 * structureParameters.defaultSamplesPerMs + noiseMod);
-		
+
 		bool combStyle = true;
 		if (combStyle)
 		{
@@ -227,17 +230,19 @@ private:
 			fullwet = temp + structureParameters.springModelParam.gecho * tempwet;
 			rippleFilterDelayLine.writeDelayLine(fullwet);
 			temp = fullwet;
+
 		}
 		else
 		{
-			temp = preechoDelayLine.processAudioSample(temp) + structureParameters.springModelParam.gecho*temp;
-			temp = rippleFilterDelayLine.processAudioSample(temp) + structureParameters.springModelParam.gripple * temp ;
+			temp = preechoDelayLine.processAudioSample(temp) + structureParameters.springModelParam.gecho * temp;
+			temp = rippleFilterDelayLine.processAudioSample(temp) + structureParameters.springModelParam.gripple * temp;
 		}
 
 		return temp;
 	}
 
 	double sampleRate;
+	double downSampleRate;
 	ReverbControlParameters controlParameters;
 	ReverbStructureParameters structureParameters;
 	vector<nestedAPF> Clf_cascadedAPF;
@@ -319,7 +324,7 @@ private:
 	ReverbStructureParameters structureParameters;
 	vector<stretchedAPF_2> Chf_cascadedAPF;
 	delayLine  ChfDelayLine;
-	Biquad leakyIntegrator{ "direct" };
+	Biquad leakyIntegrator{ "canonical" };
 };
 
 /// <summary>
@@ -354,7 +359,8 @@ public:
 	void reset(double pSampleRate)
 	{
 		sampleRate = pSampleRate;
-		clf_structure.reset(sampleRate);
+		downsampleRate = sampleRate / decimationFactor;
+		clf_structure.reset(sampleRate, downsampleRate);
 		chf_structure.reset(sampleRate);
 	}
 
@@ -363,7 +369,17 @@ public:
 		auto input = 0.5f * (inputXn[0] + inputXn[1]);
 		static auto clf_out = 0.0f, chf_out = 0.0f;
 
-		clf_out = clf_structure.processAudioSample(input + structureParameters.C1 * chf_out);
+		// decimate input audio for the Clf block 
+		if (decimationCounter % decimationFactor == 0) {
+			decimationCounter = 1; // Reset the counter
+			clf_out = clf_structure.processAudioSample(input + structureParameters.C1 * chf_out); // process input audio by Clf structure 
+		}
+		else {
+			++decimationCounter;
+			clf_out = 0.0; // Return zero for samples not taken
+		}
+		clf_out = ellipticFilter.processAudio(clf_out);
+
 		chf_out = chf_structure.processAudioSample(input + structureParameters.C2 * clf_out);
 
 		double mixedSignal = structureParameters.springModelParam.ghigh * chf_out +
@@ -375,6 +391,9 @@ public:
 
 private:
 	double sampleRate;
+	double downsampleRate;
+	int decimationFactor = 2;
+	int decimationCounter = 1;
 	IIRfilter ellipticFilter;
 	ReverbControlParameters controlParameters;
 	ReverbStructureParameters structureParameters;
