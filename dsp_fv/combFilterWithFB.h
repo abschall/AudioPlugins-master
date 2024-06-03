@@ -1,14 +1,16 @@
 #pragma once
 
-#include "circularBuffer.h"
+#include "circularBuffer_revision.h"
 
 /// <summary>
-/// Comb Filter (one channel) with Feedback, inherits from the CircularBuffer class.
+/// Comb Filter with Feedback, inherits from the CircularBuffer class.
 /// Public members are: dry, wet (mix), and feedback (gain) ratio of output signal added to input in the feedback path.
 /// </summary>
 class CombFilterWithFB : public CircularBuffer<float>
 {
 public:
+    CombFilterWithFB(){}
+    ~CombFilterWithFB(){}
     /// <summary>
     /// Sets all the comb filter's parameters: mix, feedback, delay time.
     /// Sample Rate is necessary.
@@ -49,24 +51,19 @@ public:
     }
 
     /// <summary>
-    /// Process the audio sample, outputs the sum of the input (dry) signal and processed (wet) signal.
+    /// Process the audio sample, outputs the sum of the input (dry) signal and processed (wet) signal. 
+    /// Mono IN -> Stereo OUT
     /// </summary>
     /// <param name="inputXn"></param>
-    /// <returns></returns>
-    //virtual vector<float> processAudioSample(float inputXnL,float inputXnR)
-    //{
-    //    auto ynD = delayBufferL.readBuffer(delayTimeInSamples);
-    //    auto ynFullWet = inputXnL + feedbackGain * ynD;
-    //    delayBufferL.writeBuffer(ynFullWet);
-    //    vector<float> yn = { dry * inputXnL + wet * ynD };
-    //    return yn;
-    //}
-    virtual float processAudioSample(float inputXn)
+    /// <returns> The processed audio sample</returns>
+    virtual vector<float> processAudioSample(float inputXn_L, float inputXn_R)
     {
-        auto ynD = delayBuffer.readBuffer(delayTimeInSamples);
+        auto inputXn = 1 / 2 * (inputXn_L + inputXn_R);
+        delayBuffer.setsDelay(delayTimeInSamples);
+        auto ynD = delayBuffer.readBuffer();
         auto ynFullWet = inputXn + feedbackGain * ynD;
         delayBuffer.writeBuffer(ynFullWet);
-        float yn = dry * inputXn + wet * ynD;
+        vector<float> yn = { dry * inputXn + wet * ynD, dry * inputXn + wet * ynD };
         return yn;
     }
 
@@ -81,8 +78,6 @@ public:
         currentSampleRate = pSampleRate;
         samplePerMsec = currentSampleRate / 1000.0;
         bufferLength = (unsigned int)(bufferLengthMsec * samplePerMsec) + 1;
-        delayBuffer.createBuffer(bufferLength);
-        delayBuffer.flush();
     }
 
     /// <summary>
@@ -114,7 +109,7 @@ protected:
     double bufferLengthMsec;
     unsigned int bufferLength; // in samples
     unsigned int delayTimeInSamples;
-    CircularBuffer delayBuffer;
+    CircularBuffer delayBuffer{ 2*44100 }; // 2 seconds delay buffer 
     double currentSampleRate;
     double samplePerMsec;
 private:
@@ -169,6 +164,7 @@ public:
 
     /// <summary>
     /// Process the L and R audio samples, outputs the sum of the input (dry) signal and processed (wet) signal.
+    /// Stero IN -> Stereo OUT
     /// </summary>
     /// <param name="inputXn"></param>
     /// <returns></returns>
@@ -195,10 +191,6 @@ public:
         currentSampleRate = pSampleRate;
         samplePerMsec = currentSampleRate / 1000.0;
         bufferLength = (unsigned int)(bufferLengthMsec * samplePerMsec) + 1;
-        delayBufferL.createBuffer(bufferLength);
-        delayBufferR.createBuffer(bufferLength);
-        delayBufferL.flush();
-        delayBufferR.flush();
     }
 
     /// <summary>
@@ -229,8 +221,8 @@ protected:
     double bufferLengthMsec;
     unsigned int bufferLength; // in samples
     unsigned int delayTimeInSamples;
-    CircularBuffer delayBufferR;
-    CircularBuffer delayBufferL;
+    CircularBuffer delayBufferR{ 2 * 44100 };
+    CircularBuffer delayBufferL{ 2 * 44100 };
     double currentSampleRate;
     double samplePerMsec;
 private:

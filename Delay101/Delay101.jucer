@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="ZsJ8Vc" name="Delay101" projectType="audioplug" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
+              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
+              companyName="Abschall" pluginManufacturer="Abschall" pluginManufacturerCode="Absc">
   <MAINGROUP id="q46hRZ" name="Delay101">
     <GROUP id="{74B75E11-794B-5BA8-5958-8132304FC374}" name="Source">
       <FILE id="RNpUWI" name="PluginProcessor.cpp" compile="1" resource="0"
@@ -15,6 +16,8 @@
     <FILE id="KMFr8Y" name="biquad.h" compile="0" resource="0" file="../dsp_fv/biquad.h"/>
     <FILE id="NR1Os2" name="circularBuffer.h" compile="0" resource="0"
           file="../dsp_fv/circularBuffer.h"/>
+    <FILE id="bbH7Mg" name="circularBuffer_revision.h" compile="0" resource="0"
+          file="../dsp_fv/circularBuffer_revision.h"/>
     <FILE id="L2uTn9" name="combFilterWithFB.h" compile="0" resource="0"
           file="../dsp_fv/combFilterWithFB.h"/>
   </MAINGROUP>

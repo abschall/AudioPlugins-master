@@ -55,11 +55,11 @@ public:
 
 private:
     //==============================================================================
-    CircularBuffer delayLine;
     juce::AudioParameterFloat* wetDry;
     juce::AudioParameterFloat* feedbackGain;
     juce::AudioParameterFloat* delayTime; // in ms
-    CombFilterWithFB delay;
+    CombFilterWithFB_stereo delay;
+    bool stereo = true;
     //unsigned int delaySamples;
     double currentSampleRate;
     float level = 0.0f;

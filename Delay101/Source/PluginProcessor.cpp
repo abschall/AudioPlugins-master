@@ -45,7 +45,7 @@ void Delay101AudioProcessor::prepareToPlay(double sampleRate, int samplesPerBloc
     auto feedbackGainCopy = feedbackGain->get();
     
     delay.setParameters(currentSampleRate, delayTimeMsecCopy, 1 - wetDryCopy, wetDryCopy, feedbackGainCopy);
-    delay.createDelayBuffer(currentSampleRate, 2000.0);
+    delay.createDelayBuffer(currentSampleRate, 500.0);
    
 }
 
@@ -87,15 +87,23 @@ void Delay101AudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
     auto delayTimeMsecCopy = delayTime->get();
     auto wetDryCopy = wetDry->get();
     auto feedbackGainCopy = feedbackGain->get();
-    vector<float> yn = { 0.0,0.0 };
+
     delay.setParameters(currentSampleRate, delayTimeMsecCopy, 1 - wetDryCopy, wetDryCopy, feedbackGainCopy);
 
     for (auto sample = 0;sample < buffer.getNumSamples(); ++sample)
     {
-        //for (auto i = 0; i < mainInputOutput.getNumChannels(); ++i)
-        yn = delay.processAudioSample(0, *mainInputOutput.getReadPointer(1, sample));
-        *mainInputOutput.getWritePointer(0, sample) = yn[0];
-        *mainInputOutput.getWritePointer(1, sample) = yn[1];
+        if (stereo == true)
+        {
+            auto yn = delay.processAudioSample(0, *mainInputOutput.getReadPointer(1, sample));
+            *mainInputOutput.getWritePointer(0, sample) = yn[0];
+            *mainInputOutput.getWritePointer(1, sample) = yn[1];
+        }
+        else
+        {
+            auto yn = delay.processAudioSample(*mainInputOutput.getReadPointer(0, sample), *mainInputOutput.getReadPointer(1, sample));
+            *mainInputOutput.getWritePointer(0, sample) = yn[0];
+            *mainInputOutput.getWritePointer(1, sample) = yn[1];
+        }
     }
 }
 
