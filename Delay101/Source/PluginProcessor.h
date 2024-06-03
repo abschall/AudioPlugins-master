@@ -10,7 +10,7 @@
 
 #include <JuceHeader.h>
 #include "../../dsp_fv/biquad.h"
-#include "../../dsp_fv/combFilterWithFB.h"
+#include "dsp/combFilterWithFB.h"
 //==============================================================================
 
 class Delay101AudioProcessor  : public juce::AudioProcessor, private CircularBuffer<float>

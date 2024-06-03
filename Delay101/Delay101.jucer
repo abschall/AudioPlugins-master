@@ -14,12 +14,10 @@
       <FILE id="jNHbHP" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
     <FILE id="KMFr8Y" name="biquad.h" compile="0" resource="0" file="../dsp_fv/biquad.h"/>
-    <FILE id="NR1Os2" name="circularBuffer.h" compile="0" resource="0"
-          file="../dsp_fv/circularBuffer.h"/>
-    <FILE id="bbH7Mg" name="circularBuffer_revision.h" compile="0" resource="0"
-          file="../dsp_fv/circularBuffer_revision.h"/>
-    <FILE id="L2uTn9" name="combFilterWithFB.h" compile="0" resource="0"
-          file="../dsp_fv/combFilterWithFB.h"/>
+    <FILE id="eALMuw" name="circularBuffer.h" compile="0" resource="0"
+          file="Source/dsp/circularBuffer.h"/>
+    <FILE id="dz5I9L" name="combFilterWithFB.h" compile="0" resource="0"
+          file="Source/dsp/combFilterWithFB.h"/>
   </MAINGROUP>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
