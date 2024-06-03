@@ -10,7 +10,6 @@
 
 #include <JuceHeader.h>
 #include "../../dsp_fv/biquad.h"
-#include "../../dsp_fv/circularBuffer.h"
 #include "MultiTapDelay.h"
 
 //==============================================================================

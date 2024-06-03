@@ -18,7 +18,6 @@ template <typename T>
 class CircularBuffer
 {
 public:
-    CircularBuffer(){ }
     /// <summary>
     /// Performs linear interpolation between two values.
     /// </summary>
@@ -33,6 +32,12 @@ public:
 
         // Weighted sum method of interpolation 
         return fractional_X * y2 + (1.0 - fractional_X) * y1;
+    }
+
+
+    CircularBuffer()
+    {
+
     }
 
     /// <summary>
