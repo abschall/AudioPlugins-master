@@ -99,17 +99,17 @@ void ParametricSpringReverbAudioProcessor::processBlock(juce::AudioBuffer<float>
     reverbAlgorithm.updateParameters(controlParameters);
 
     vector<float> input = { 0.0, 0.0 };
-    //if (impulseBool->load())
-    //{
-    //    input[0] = 1 * controlParameters.IR_level;
-    //    input[1] = 1 * controlParameters.IR_level;
-    //    impulseBool->store(0.0f);
-    //}
-    //else
-    //{
-    //    input[0] = 0;
-    //    input[1] = 0;
-    //}
+    if (impulseBool->load())
+    {
+        input[0] = 1 * controlParameters.IR_level;
+        input[1] = 1 * controlParameters.IR_level;
+        impulseBool->store(0.0f);
+    }
+    else
+    {
+        input[0] = 0;
+        input[1] = 0;
+    }
     for (auto sample = 0;sample < buffer.getNumSamples(); ++sample)
     {
         input[0] = BufferIn_L[sample];

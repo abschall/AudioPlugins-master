@@ -21,24 +21,24 @@ struct ReverbControlParameters
 struct ReverbStructureParameters
 {
 	const double fC = 4300;			// Transition frequency
-	const unsigned int Mlow = 100;		// Number of cascaded APF structures below fC
-	const unsigned int Mhigh = 50;	// Number of cascaded APF structures above fC
+	const unsigned int Mlow = 50;		// Number of cascaded APF structures below fC
+	const unsigned int Mhigh = 00;	// Number of cascaded APF structures above fC
 
 	struct SpringModelParameters
 	{
-		double timeDelay_ms = 66;	// Delay Time in ms 
+		double timeDelay_ms = 56;	// Delay Time in ms 
 		float Nripple = 0.5;
 		double ghf = -0.77;			// high - frequency chirps feedback gain
 		double glf = -0.8;			// low - frequency chirps feedback gain
 		double gmod_high = 6;		// Chf delay line modulation depth
 		double gmod_low = 12;		// Clf delay line modulation depth
 
-		double gripple = 0.05;		// Ripple filter feedforward coefficient
-		double gecho = - 0.1;			// Pre - echo delay Line feedforward coefficient
+		double gripple = -0.2;		// Ripple filter feedforward coefficient
+		double gecho = -0.1;			// Pre - echo delay Line feedforward coefficient
 
 		// Coupling coefficients
 		double	gdry = 0.0;
-		double	ghigh = 0.01;
+		double	ghigh = 0.001;
 		double	glow = 1.0;
 
 		double a1 = 0.62;			// Low frequency nested First-order all pass filter coefficent 
@@ -46,10 +46,10 @@ struct ReverbStructureParameters
 
 	// Derived variables 
 	SpringModelParameters springModelParam;
-	double defaultSampleRate = 44100;
-	double defaultSamplesPerMs = 44.1/2 ;
-	double fN = defaultSampleRate / 4;
-	double K = fN / fC;
+	double defaultSampleRate = 48000;
+	double defaultSamplesPerMs = defaultSampleRate / 1000;
+	double fN = defaultSampleRate / 2  ;
+	double K = fN / fC * 2 ;
 	int K1 = (int)(round(K) - 1);
 	double d = K - K1;
 	double a2 = (1 - d) / (1 + d);
@@ -78,7 +78,7 @@ struct ReverbStructureParameters
 	//float aint = tan(3.1415 / 4 - fint / defaultSampleRate * 3.1415); // Leaky Integrator coefficient 
 	double aint = 0.93;
 	// Cross-coupling coefficients
-	double C1 = 0.1, C2 = 0.0;
+	double C1 = 0.2, C2 = 0.0;
 
 
 	// Clf blocks, times in ms
@@ -178,9 +178,9 @@ public:
 		float output = 0.0f;
 		static float ynD = 0.0f;
 
-		ynD = rippleFilterDelayLine.readDelayLine(structureParameters.Lripple * 44.1);
+		ynD = rippleFilterDelayLine.readDelayLine(structureParameters.Lripple * structureParameters.defaultSamplesPerMs);
 		auto temp = input - structureParameters.springModelParam.glf * ynD;
-		//temp = structureParameters.DC_scalingFactor * DCFilter.processAudioSample(temp);
+		temp = structureParameters.DC_scalingFactor * DCFilter.processAudioSample(temp);
 		temp = cascadedAPF_procesAudio(temp);
 		output = temp;
 
@@ -392,7 +392,7 @@ public:
 private:
 	double sampleRate;
 	double downsampleRate;
-	int decimationFactor = 2;
+	int decimationFactor = 1;
 	int decimationCounter = 1;
 	IIRfilter ellipticFilter;
 	ReverbControlParameters controlParameters;
