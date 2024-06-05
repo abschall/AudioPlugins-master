@@ -18,7 +18,6 @@ template <typename T>
 class CircularBuffer
 {
 public:
-    CircularBuffer(){ }
     /// <summary>
     /// Performs linear interpolation between two values.
     /// </summary>
@@ -35,18 +34,39 @@ public:
         return fractional_X * y2 + (1.0 - fractional_X) * y1;
     }
 
+    CircularBuffer()
+    {
+        createBuffer((size_t) 16); // default size is 16 samples 
+    }
+    CircularBuffer( size_t maxDelay)
+    {
+        createBuffer(maxDelay);
+    }
+
     /// <summary>
-    /// Creates a circular buffer of specified length.
+    /// Creates a circular buffer of specified length. Creates buffer.
+    /// Sets the bitmask and the initial writeIndex
     /// </summary>
     /// <param name="length">The desired length of the buffer.</param>
     void createBuffer(unsigned int length)
     {
-        bufferLength = (unsigned int)(pow(2, ceil(log(length) / log(2))));
+        auto bufferLength = (unsigned int)(pow(2, ceil(log(length) / log(2)))); // Power of 2 : efficient modulo 2 mask operation  
+
+        // initally fills the buffer with T(0) values 
+        for (auto i = 0; i < bufferLength; ++i)
+            buffer.push_back(T(0));
+
         writeIndex = 0;
+        offset = 1;
         wrapMask = bufferLength - 1;
-        // Create a new buffer
-        buffer.reset(new T[bufferLength]);
-        flush();
+    }
+    /// <summary>
+    /// Sets the delay Time in samples 
+    /// </summary>
+    /// <param name="delay">delay Time in samples </param>
+    void setsDelay(unsigned int delay)
+    {
+        offset = delay;
     }
 
     /// <summary>
@@ -62,16 +82,25 @@ public:
     }
 
     /// <summary>
-    /// Reads data from the circular buffer.
+    /// Reads data from the circular buffer at specified sample offset. 
     /// </summary>
-    /// <param name="offset">The offset from the current write index.</param>
+    /// <param name="offset">The offset (or delay time in samples) from the current write index.</param>
     /// <returns>The read data.</returns>
-    T readBuffer(unsigned int offset)
+    T readBuffer(unsigned int pDelay)
     {
         // Read from buffer at writeIndex - required offset
         // No need to update readIndex, as it is performed using writeIndex
-        readIndex = writeIndex - offset;
-        readIndex &= wrapMask;
+        auto readIndex = (writeIndex - pDelay) & wrapMask;
+        return buffer[readIndex];
+    }
+
+    /// <summary>
+    /// Read data from the circular buffer. 
+    /// </summary>
+    /// <returns>The read data.</returns>
+    T readBuffer()
+    {
+        auto readIndex = (writeIndex - offset) & wrapMask;
         return buffer[readIndex];
     }
 
@@ -82,9 +111,9 @@ public:
     /// </summary>
     void flush()
     {
-        for (auto i = 0; i < bufferLength; ++i)
+        for (auto i = 0; i < buffer.size(); ++i)
         {
-            writeBuffer(0.0f);
+            writeBuffer(T(0));
         }
     }
 
@@ -107,9 +136,9 @@ public:
         return doLinearInterpolation(y1, y2, fraction);
     }
 
-    std::shared_ptr<T[]> buffer; // Declaring an array of type T
-
 private:
-    unsigned int writeIndex, readIndex, bufferLength;
+    unsigned int writeIndex;
+    unsigned int offset;
     unsigned int wrapMask;
+    vector<T> buffer; 
 };

@@ -281,7 +281,7 @@ public:
 		parameters.g = pParameters.g; //damping parameter
 		parameters.g1 = sqrt(parameters.delayTime_ms / 250); // low pass filter coefficient 
 		parameters.enableComb = pParameters.enableComb;
-		parameters.delayTime_samples = (unsigned int)parameters.delayTime_ms * samplesPerMsec + 1;
+		parameters.delayTime_samples = (unsigned int)parameters.delayTime_ms * samplesPerMsec;
 		rpole.setType("direct");
 
 		rpole.updateParameters({ 1.0, 0, 0 }, {0, (-1) * (float) parameters.g1, 0}); // LowPass 1-pole filter 
@@ -377,6 +377,7 @@ public:
 	{
 		currentSampleRate = pSampleRate;
 		samplesPerMsec = currentSampleRate / 1000.0;
+		parameters.delayTime_samples = (unsigned int)parameters.delayTime_ms * samplesPerMsec;
 		auto bufferLength = (unsigned int)(parameters.delayTime_ms * samplesPerMsec) + 1;
 		delayBuffer.createBuffer(bufferLength);
 	}

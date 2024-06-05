@@ -1,6 +1,6 @@
 #pragma once
 
-#include "circularBuffer_revision.h"
+#include "circularBuffer.h"
 
 /// <summary>
 /// Comb Filter with Feedback, inherits from the CircularBuffer class.
